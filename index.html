@@ -1,0 +1,1500 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Presença MVP — New Way | TRST</title>
+<!-- Space Grotesk via Google Fonts — works on GitHub Pages; degrades to system-ui offline -->
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* =============================================
+   TRSTYPE decorative font
+============================================= */
+@font-face {
+  font-family: 'TRSTYPE';
+  src: url('data:font/opentype;base64,T1RUTwALAIAAAwAwQ0ZGIG92OLkAAATkAAAJj0ZHVE2oWXObAAAO0AAAABxHREVGACcAGAAADnQAAAAgT1MvMlaiazsAAAEgAAAAYGNtYXBiW1d7AAADgAAAAUJoZWFkLWLu2wAAALwAAAA2aGhlYQrXBfYAAAD0AAAAJGhtdHgL5gAxAAAOlAAAADptYXhwABtQAAAAARgAAAAGbmFtZTpu1C4AAAGAAAAB/nBvc3QAIwBBAAAExAAAACAAAQAAAAEAALnL+C1fDzz1AAsD6AAAAADkLteLAAAAAORT0bEAAAAABcIEugAAAAgAAgAAAAAAAAABAAAEugAAAFoF8wAAAAAFwgABAAAAAAAAAAAAAAAAAAAAAgAAUAAAGwAAAAQF8wGQAAUAAAKKArwAAACLAooCvAAAAeAAMQECAAACAAUJAAAAAAAAAAAAAQAAAAAAAAAAAAAAAFBmRWQAgABhAHoD6AAAAFoEugAAAAAAAQAAAAAEugAAACAAIAABAAAADgCuAAEAAAAAAAAAGQA0AAEAAAAAAAEABwBeAAEAAAAAAAIABwB2AAEAAAAAAAMAJQDKAAEAAAAAAAQABwEAAAEAAAAAAAUADwEoAAEAAAAAAAYABwFIAAMAAQQJAAAAMgAAAAMAAQQJAAEADgBOAAMAAQQJAAIADgBmAAMAAQQJAAMASgB+AAMAAQQJAAQADgDwAAMAAQQJAAUAHgEIAAMAAQQJAAYADgE4AEMAbwBwAHkAcgBpAGcAaAB0ACAAKABjACkAIAAyADAAMgA1ACwAIABEAGkAbwBnAG8AAENvcHlyaWdodCAoYykgMjAyNSwgRGlvZ28AAHQAcgBzAHQAeQBwAGUAAHRyc3R5cGUAAFIAZQBnAHUAbABhAHIAAFJlZ3VsYXIAAEYAbwBuAHQARgBvAHIAZwBlACAAMgAuADAAIAA6ACAAVQBuAHQAaQB0AGwAZQBkADEAIAA6ACAAMgAzAC0ANAAtADIAMAAyADUAAEZvbnRGb3JnZSAyLjAgOiBVbnRpdGxlZDEgOiAyMy00LTIwMjUAAHQAcgBzAHQAeQBwAGUAAHRyc3R5cGUAAFYAZQByAHMAaQBvAG4AIAAwADAAMQAuADAAMAAwAABWZXJzaW9uIDAwMS4wMDAAAHQAcgBzAHQAeQBwAGUAAHRyc3R5cGUAAAAAAAADAAAAAwAAABwAAQAAAAAAPAADAAEAAAAcAAQAIAAAAAQABAABAAAAev//AAAAYf///6AAAQAAAAAAAAEGAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAAgAEAAAAABAAAAAAAAAAAAAAAAAAAAAAEABAQAAQEBCHRyc3R5cGUAAQIAAQA5+A8A+BsB+BwC+B0D+BgEjAwBiwwDHmSiAC8MBIuLHAXCHAS6BRwAgw8cAAAQHAC4ERwAPxwIvhIAAwIAAQAaACEAKENvcHlyaWdodCAoYykgMjAyNSwgRGlvZ290cnN0eXBldHJzdHlwZQAAAABCAEMARABFAEYARwBIAEkASgBLAEwATQBOAE8AUABRAFIAUwBUAFUAVgBXAFgAWQBaAFsAGwIAAQAmAGUApwD1AUUBeAG3AgECOAJ0ArADEQNbA5QDzQQfBHMEtgUZBV4FxgYlBokG7Ac8B30HzIu8+My8Aby8HAUvvAO8FhwFkfkuHPpvBrz8/RX4zBwFL/zMBw6N+bsBi/dd2/de3Pde3Pdd2/ddA40E9135vPtdBvet/bwVIAr3r/28FSAK96/9vBX3Xfm8+10G9639vBUgCg6gdqB2HAS4dqB2Eov3Xdv3Xtz3Xtz3Xdv3XROvgIsEIQr3rRz7RxUiCvevHPtHFSIK968c+0cVIQr3rRz7RxUjCg76hHYSi/dd2/de3Pde3PddcqTb910T8o0E9136g/tdBvet/oMVJAr3r/6DFSQKE/r3r/6DFfdd+Cfb/CcG916Ji/jx+66Ni/gm+12LBQ6gdqB2HAS4dqB2Eov3Xdv3Xtz3Xtz3XXKk2/ddE45AiwQlCvet/boVJgr3r/26FSYKE69A96/9uhX3Xfgm2/wm91748Ab7romL+PP7XYsFDoz5uhKL913b917c917c911ypNv3XRPyjAQlCvet/boVJgr3r/26FSYKE/r3r/26FScKDqF2oHYcBLh2oHYSi/dd2/de3Pde3PddcqTb910TrkCMBCEK960c+0cVIgr3rxz7RxUiChOPQPevHPtHFScKDoz4J/tfrWn3Xvdf9133XvddEhMYHAS6BCgKHPrO/CcV+135kvddBxOY/ZL8JxUTWPwn+Hf3XAcTOPev918G3PgnFftd+Hf3XQcOjPgn+1+t+Af3Xfde910Si/h3EzgcBLoEKAoc+s78JxUoChO4HPrO/CcVE3j8J/h3BxO4+CcHDoz48fjvdqB2Eov3Xdv3Xtz3Xtz3Xdv3XRPfjAQhCvetHPtHFSYK96/9uhUmCvev/boVJQr3rf26FSYKDqF2oHb48fdd9173XRKL913b917c917c913b910Tv4CMBCKKDqF2oHb6g3YSi/dd2/de3Pde3PddcqTb910TvICLBCUK9639uhUrCvev/oQVKwoTvoD3r/6EFSwKDqB2oHb6g3YSi/dd2/de3Pde3PddcqTb910TvICLBCUK9639uhUmCvev/boVKwoTvoD3r/6EFSwKDqF2oHb4wLyL+PASi/dd2/de3Pde3Pdd2/ddEx+A+PIE91348PtdBvet/PAVIwr3r/zwFSMKE5+A+Mgc+0cV91748fuu+PAGE6+A+139uvetBg6L+PH7Xfdd9133XRKL913b917c917c913b910Tv4sEKgr3rfzxFSkK96/8KBX3Xvm7+14G96/7XhX3Xfde+10G963+hBX3XvjxBhN//Hf7XfetBg6M91z6hHagdhKL913b917c917c913b910T3/goBCUK9639uhUmCvev/boVJgr3rxz7RxUhCvetHPtHFfde91z7XgYOoXagdvdc9173X/dd9173XRKL913b917c917c913b910Tv8CMBCUK9639uhUmCvev914V9173XfteBvjIHPtHFSYK+6388hX7XPdd+Cf8ePtfB/ev+PIV+6/7Xfh4+PD7XQYOi/m69173XQGL913b917c917c913b910DiwQlCvet/boVJgr3r/26FSYK968W/br3Xfm6B9v3XhX+hPdeHAS5/ZL7XQcOjPm6/PL3Xvdf9133XvddEov3Xdv3Xtz3Xtz3Xfsp9ynb910TnkCMBCUK9639uhUmCvev/boVJgoTH0D3r/deFfdd9137XQYTn0D8JwT9uvdd91zb+1z3Xvgn+64HEz9A9173rvddBw6L+PH7Xfdd+CZ2Eov3Xdulcfde3Pde3PddcqTb910TskD4yBYrCvjI/oMV91748PuuBhNywPgn+13+hPdd+CjbBxO6QP4z/CgVE3pA+Cjb/Cj3XgcTukD48fx3/PEHDoz48fjvdqB2Eov3Xdv3Xtz3Xtz3XXKk2/ddE5yA962MFSkK96/88RX3XvqE+68GE9yA9137Xvwn968H+Mj9uhX3Xvjx+64GE52A+PD7XRz7R/dd+CjbB/4z/CgV+PH7XfzxBw74Kfdd+CZ2Eov3Xdulcfde3Pde3PddcqTb910T5ID4yI0VJAr4yP6DFfde+PEGE+aA+674Jvtd/oP3Xfgn2wb+M/wnFfgnBxP0gNsGE+yA/Cf3XvqDBxP0gPte/Cf7rfzwBg6N+PD3XfddEov3Xdv3Xtz3Xtz3XXKk2/ddE/mNBPdd+PD7XQb3rfzwFSMK96/88BUjChP996/88BX3Xfgn2/wn91748Puu9133rvde/HcGDoz3XPqEdqB2Eov3Xdv3Xtz3Xtz3Xdv3XRPfjAQhCvetHPtHFSYK96/9uhUmCvev/boVJQr3rf26Ffde91z7XgYOjPgn+1/3Xvdf9133XvddEvr8910TOBwEugQoChz6zvwnFftd+ZL3XQcTuP2S/CcVE3j8J/h391z3r/dfB/2S+18V+vz3XxX7X/de918HDhwF8xSLFYyL+oP3XouLBh4KAEFmZ/8MCYsMCvddCq2a9yuMjPdd912M912MDAz3XQukjPcPv4z3rQwNHAA/EwANAQEJEhsjKzM7TldfZ2+C9175vPteBgv3XRwEuftdBgv3XhwEufteBgv3Xvjw+14GC/de+oP7XgYL9135uvtdBgv3Xvm6+14GC/dd+Cfb/Cf3Xvjx+673XftdBgv7XRwFMvddBwv3Xvjx+14GC/dd+PH7XQYL9176hPteBgv3Xfgo2/wo91748fuu+Cf7XQYLAAABAAAADAAAABAAGAACAAAABAAAAAIAAAABAAAAAQAABfMAMQXzAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAADf1speAAAAAOQu14sAAAAA5FPRsQ==') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* =============================================
+   CSS Variables — TRST Blue scheme
+============================================= */
+:root {
+  --trst-dark:       #212123;
+  --trst-light:      #F7FAFA;
+  --trst-blue-dark:  #274F89;
+  --trst-blue-mid:   #3163AB;
+  --trst-blue-light: #3F7DD9;
+  --nw-navy:         #0A2356;
+  --grey-50:  #f8f9fb;
+  --grey-100: #f1f3f5;
+  --grey-200: #e3e8ee;
+  --grey-300: #c1c9d2;
+  --grey-400: #8792a2;
+  --grey-500: #697386;
+  --grey-600: #4f566b;
+  --surface:     #FFFFFF;
+  --card-bg:     #f0f4fa;
+  --card-border: #dce3f0;
+  --border:      #e3e8ee;
+  --shadow-sm:   0 1px 3px rgba(0,0,0,0.04);
+  --shadow-md:   0 4px 12px rgba(0,0,0,0.07);
+  --radius:    10px;
+  --radius-sm: 6px;
+  --success:  #25A882;
+  --warning:  #F5A623;
+  --critical: #F44D4F;
+  --info:     #3F7DD9;
+  --muted:    #8792a2;
+  --amber:      #B87509;
+  --amber-mid:  #D89422;
+  --amber-soft: #FFF4DC;
+  --red:        #A82A22;
+  --red-mid:    #C93D32;
+  --red-soft:   #FDECEA;
+  /* NOTE: "greve" removed — school context uses "advertência" (demerit/warning) */
+  --green-soft: #E8F5F0;
+  --blue-soft:  #EEF3FB;
+  --font: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { font-family: var(--font); background: var(--grey-50); color: var(--trst-dark); font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+button { font-family: inherit; }
+
+/* =============================================
+   HEADER
+============================================= */
+.header {
+  position: relative;
+  height: 90px;
+  background: linear-gradient(135deg, #0e1c38 0%, var(--trst-blue-dark) 45%, var(--trst-blue-mid) 100%);
+  overflow: hidden;
+  display: flex; align-items: center; padding: 0 28px;
+}
+.header-trstype {
+  position: absolute; inset: 0;
+  font-family: 'TRSTYPE', sans-serif;
+  font-size: 60px; line-height: 1.3; letter-spacing: 0;
+  word-break: break-all;
+  color: transparent;
+  -webkit-text-stroke: 2px rgba(63,125,217,0.20);
+  overflow: hidden; user-select: none; pointer-events: none;
+}
+.header-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(90deg, rgba(14,28,56,0.55) 0%, transparent 60%);
+  pointer-events: none;
+}
+.header-content {
+  position: relative; z-index: 2;
+  display: flex; align-items: center; justify-content: space-between; width: 100%;
+}
+.header-left { display: flex; align-items: center; gap: 14px; }
+.trst-badge {
+  width: 52px; height: 52px;
+  background: rgba(255,255,255,0.10);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.header-titles .app { font-size: 17px; font-weight: 600; color: #F7FAFA; letter-spacing: -0.01em; }
+.header-titles .tenant { font-size: 12px; font-weight: 400; color: rgba(247,250,250,0.55); margin-top: 1px; }
+.header-right { display: flex; align-items: center; gap: 18px; }
+.nw-divider { width: 1px; height: 38px; background: rgba(255,255,255,0.18); }
+.campus-pill {
+  display: inline-flex;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 999px; padding: 3px; gap: 2px;
+}
+.campus-pill button {
+  padding: 4px 13px; border: none; background: transparent;
+  color: rgba(247,250,250,0.65); border-radius: 999px; cursor: pointer;
+  font-size: 12px; font-weight: 500; font-family: inherit; transition: all 0.15s;
+}
+.campus-pill .on { background: rgba(255,255,255,0.18); color: #F7FAFA; }
+.user-chip { display: flex; align-items: center; gap: 8px; font-size: 13px; color: rgba(247,250,250,0.8); cursor: pointer; }
+.avatar {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.2);
+  color: #F7FAFA; display: flex; align-items: center; justify-content: center;
+  font-weight: 600; font-size: 12px;
+}
+.role-badge {
+  font-size: 10px; font-weight: 600; padding: 2px 8px;
+  border-radius: 999px; border: 1px solid rgba(255,255,255,0.25);
+  background: rgba(255,255,255,0.10); color: rgba(247,250,250,0.85);
+}
+
+/* =============================================
+   Tab nav
+============================================= */
+.tabs-bar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; padding: 0 28px; gap: 0;
+  overflow-x: auto;
+}
+.tab-btn {
+  padding: 13px 18px;
+  font-size: 13px; font-weight: 500;
+  color: var(--grey-500);
+  background: transparent; border: none; border-bottom: 2px solid transparent;
+  cursor: pointer; white-space: nowrap; font-family: inherit;
+  transition: all 0.15s;
+  display: flex; align-items: center; gap: 7px;
+}
+.tab-btn:hover { color: var(--trst-dark); }
+.tab-btn.active { color: var(--trst-blue-dark); border-bottom-color: var(--trst-blue-dark); }
+.tab-btn .badge {
+  font-size: 11px; font-weight: 600;
+  background: var(--warning); color: white;
+  padding: 1px 6px; border-radius: 999px;
+}
+.tab-btn .badge.red { background: var(--critical); }
+.tab-pane { display: none; }
+.tab-pane.active { display: block; }
+
+/* =============================================
+   Sticky controls bar
+============================================= */
+.controls {
+  position: sticky; top: 0; z-index: 100;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 28px;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; flex-wrap: wrap;
+}
+.controls-left  { display: flex; align-items: center; gap: 10px; }
+.controls-right { display: flex; align-items: center; gap: 8px; }
+.search { position: relative; }
+.search input {
+  width: 220px; font-family: inherit; font-size: 13px;
+  padding: 8px 12px 8px 32px;
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--grey-50); color: var(--trst-dark); outline: none;
+}
+.search input:focus { box-shadow: 0 0 0 3px rgba(63,125,217,0.12); border-color: var(--trst-blue-light); }
+.search-icon {
+  position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+  color: var(--grey-400); pointer-events: none;
+}
+.ctrl-select {
+  font-family: inherit; font-size: 13px; padding: 8px 11px;
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--surface); color: var(--trst-dark); cursor: pointer; outline: none;
+}
+.ctrl-select:focus { box-shadow: 0 0 0 3px rgba(63,125,217,0.12); border-color: var(--trst-blue-light); }
+.btn {
+  font-size: 13px; font-weight: 500; padding: 8px 14px;
+  border-radius: var(--radius-sm); cursor: pointer;
+  border: 1px solid transparent;
+  display: inline-flex; align-items: center; gap: 6px;
+  line-height: 1; transition: all 0.15s; font-family: inherit;
+}
+.btn-ghost   { background: var(--surface); color: var(--grey-600); border-color: var(--border); }
+.btn-ghost:hover { border-color: var(--grey-400); }
+.btn-primary { background: var(--trst-blue-dark); color: #F7FAFA; }
+.btn-primary:hover { background: var(--trst-blue-mid); }
+.btn-warning { background: var(--warning); color: white; }
+.btn-warning:hover { opacity: 0.9; }
+.btn-danger  { background: var(--critical); color: white; }
+.btn-sm { padding: 5px 10px; font-size: 12px; }
+.btn-icon { width: 32px; height: 32px; padding: 0; justify-content: center; }
+
+/* =============================================
+   Page wrap
+============================================= */
+.wrap { max-width: 1320px; margin: 0 auto; padding: 24px 28px; }
+.page-head { display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 16px; margin-bottom: 18px; }
+h1 { font-size: 24px; font-weight: 600; letter-spacing: -0.02em; }
+h2 { font-size: 16px; font-weight: 600; letter-spacing: -0.01em; margin-bottom: 14px; }
+.subtitle { color: var(--grey-400); font-size: 13px; margin-top: 3px; }
+.subtitle strong { color: var(--trst-dark); font-weight: 500; }
+
+/* =============================================
+   KPI summary cards
+============================================= */
+.summary { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 14px; }
+.chip {
+  background: var(--card-bg); border: 1px solid var(--card-border);
+  border-radius: var(--radius); padding: 16px 18px; cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.chip:hover { border-color: var(--trst-blue-mid); box-shadow: var(--shadow-md); }
+.chip[aria-pressed="true"] { border-color: var(--trst-blue-dark); box-shadow: inset 0 0 0 1px var(--trst-blue-dark); }
+.chip .label { font-size: 12px; font-weight: 500; color: var(--grey-500); }
+.chip .value { font-size: 32px; font-weight: 700; margin-top: 4px; letter-spacing: -0.03em; line-height: 1.1; color: var(--info); font-variant-numeric: tabular-nums; }
+.chip.amber .value { color: var(--warning); }
+.chip.red   .value { color: var(--critical); }
+.chip.green .value { color: var(--success); }
+.chip .sub  { font-size: 12px; color: var(--grey-400); margin-top: 3px; }
+
+/* =============================================
+   Policy strip
+============================================= */
+.policy {
+  margin-bottom: 14px; padding: 9px 14px;
+  background: var(--blue-soft); border: 1px solid var(--card-border);
+  border-radius: var(--radius-sm); font-size: 12px; color: var(--trst-blue-dark);
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+}
+.live-dot {
+  display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  background: var(--success); margin-right: 6px;
+  box-shadow: 0 0 5px var(--success); animation: pulse 2s ease-in-out infinite; vertical-align: middle;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+/* =============================================
+   Table
+============================================= */
+.table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-sm); }
+.table-head-meta { display: flex; justify-content: space-between; align-items: center; padding: 11px 16px; border-bottom: 1px solid var(--grey-100); font-size: 13px; }
+.table-head-meta .count { color: var(--grey-400); }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { text-align: left; font-weight: 500; font-size: 11px; color: var(--grey-500); text-transform: uppercase; letter-spacing: 0.06em; padding: 10px 16px; background: var(--grey-50); border-bottom: 1px solid var(--border); }
+td { padding: 13px 16px; border-bottom: 1px solid var(--grey-100); vertical-align: middle; }
+tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: rgba(63,125,217,0.025); }
+tr td:first-child { border-left: 3px solid transparent; padding-left: 13px; }
+tr.row-amber td:first-child { border-left-color: var(--amber-mid); }
+tr.row-red   td:first-child { border-left-color: var(--red-mid); }
+tr.row-amber td { background: #FFFBF0; }
+tr.row-red   td { background: #FEF7F6; }
+tr.row-amber:hover td { background: #FFF5DC; }
+tr.row-red:hover   td { background: #FDEDEB; }
+tr.row-edited td { background: #F0F8FF; }
+.student-name  { font-weight: 500; }
+.student-class { font-size: 12px; color: var(--grey-400); margin-top: 1px; }
+.entry { display: inline-flex; align-items: center; gap: 7px; font-variant-numeric: tabular-nums; }
+.entry .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--success); flex-shrink: 0; }
+.entry.late .dot { background: var(--amber-mid); }
+.entry.late .time { color: var(--amber); font-weight: 500; }
+.entry .delta { font-size: 11px; color: var(--amber); background: var(--amber-soft); padding: 1px 6px; border-radius: 999px; }
+.entry .none { color: var(--grey-400); font-style: italic; font-size: 12px; }
+.audit-chip {
+  display: inline-flex; align-items: center; gap: 3px; font-size: 11px; color: var(--grey-400);
+  background: var(--grey-100); padding: 2px 7px; border-radius: 999px; cursor: pointer;
+  border: none; font-family: inherit; margin-left: 8px;
+}
+.audit-chip:hover { background: var(--blue-soft); color: var(--trst-blue-dark); }
+.edited-flag { font-size: 10px; background: #e8f0fe; color: #1a56db; padding: 1px 6px; border-radius: 999px; margin-left: 6px; font-weight: 500; }
+.strikes { display: inline-flex; gap: 3px; font-size: 15px; line-height: 1; }
+.strikes .filled { color: var(--amber-mid); }
+.strikes .empty  { color: var(--grey-300); }
+tr.row-red .strikes .filled { color: var(--red-mid); }
+.strike-cta { font-size: 11px; font-weight: 500; color: var(--red); background: transparent; border: 1px solid var(--red); border-radius: 999px; padding: 3px 10px; cursor: pointer; font-family: inherit; }
+.strike-cta:hover { background: var(--red-soft); }
+.bio { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; }
+.bio-dot { width: 7px; height: 7px; border-radius: 50%; }
+.bio-dot.ok { background: var(--success); }
+.bio-dot.pending { background: var(--grey-300); }
+.bio .pend-link { color: var(--trst-blue-mid); text-decoration: underline; font-weight: 500; cursor: pointer; }
+.kebab { width: 28px; height: 28px; border: 1px solid transparent; border-radius: 6px; background: transparent; cursor: pointer; color: var(--grey-400); display: inline-flex; align-items: center; justify-content: center; }
+.kebab:hover { background: var(--blue-soft); color: var(--trst-blue-dark); border-color: var(--border); }
+
+/* =============================================
+   Legend
+============================================= */
+.legend { margin-top: 14px; display: flex; gap: 18px; font-size: 12px; color: var(--grey-400); flex-wrap: wrap; }
+.legend-item { display: inline-flex; align-items: center; gap: 6px; }
+.legend .dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+.legend .dot.ok    { background: var(--success); }
+.legend .dot.amber { background: var(--amber-mid); }
+.legend .dot.red   { background: var(--red-mid); }
+
+/* =============================================
+   Atrasos view
+============================================= */
+.atraso-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px,1fr)); gap: 14px; }
+.atraso-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 16px 18px; display: flex; justify-content: space-between; align-items: flex-start;
+  box-shadow: var(--shadow-sm);
+}
+.atraso-card.strike3 { border-left: 3px solid var(--red-mid); background: var(--red-soft); }
+.atraso-card .student { font-weight: 500; font-size: 14px; }
+.atraso-card .class-name { font-size: 12px; color: var(--grey-400); margin-top: 2px; }
+.atraso-card .time-info { font-size: 12px; color: var(--amber); margin-top: 6px; font-weight: 500; }
+.atraso-card .actions { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.strikes-display { display: flex; gap: 2px; font-size: 18px; }
+.strike-add-btn { font-size: 11px; font-weight: 500; color: var(--amber); border: 1px solid var(--amber); border-radius: 999px; padding: 3px 9px; cursor: pointer; background: transparent; font-family: inherit; }
+.strike-add-btn:hover { background: var(--amber-soft); }
+.parent-cta { font-size: 11px; font-weight: 500; color: var(--red); border: 1px solid var(--red); border-radius: 999px; padding: 3px 9px; cursor: pointer; background: transparent; font-family: inherit; }
+.parent-cta:hover { background: var(--red-soft); }
+
+/* =============================================
+   Kiosk view
+============================================= */
+.kiosk-view {
+  max-width: 520px; margin: 0 auto; text-align: center; padding: 40px 20px;
+}
+.kiosk-header { font-size: 22px; font-weight: 600; margin-bottom: 8px; }
+.kiosk-sub { font-size: 14px; color: var(--grey-400); margin-bottom: 32px; }
+.kiosk-search-wrap { position: relative; margin-bottom: 24px; }
+.kiosk-search-wrap input {
+  width: 100%; font-family: inherit; font-size: 16px; padding: 14px 18px 14px 44px;
+  border: 2px solid var(--border); border-radius: var(--radius);
+  background: var(--surface); outline: none;
+}
+.kiosk-search-wrap input:focus { border-color: var(--trst-blue-mid); box-shadow: 0 0 0 4px rgba(63,125,217,0.10); }
+.kiosk-search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--grey-400); }
+.kiosk-results { list-style: none; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; text-align: left; background: var(--surface); }
+.kiosk-result-item {
+  padding: 14px 18px; border-bottom: 1px solid var(--grey-100); cursor: pointer;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.kiosk-result-item:last-child { border-bottom: none; }
+.kiosk-result-item:hover { background: var(--blue-soft); }
+.kiosk-result-item .name { font-weight: 500; }
+.kiosk-result-item .cls  { font-size: 12px; color: var(--grey-400); margin-top: 2px; }
+.kiosk-checkin-confirm {
+  background: var(--green-soft); border: 1px solid #b5ddd3; border-radius: var(--radius);
+  padding: 28px; margin-top: 16px;
+}
+.kiosk-checkin-confirm .icon { font-size: 36px; margin-bottom: 10px; }
+.kiosk-checkin-confirm h3 { font-size: 18px; font-weight: 600; color: var(--success); margin-bottom: 4px; }
+.kiosk-checkin-confirm p { font-size: 13px; color: var(--grey-500); }
+.kiosk-supervisor-bar {
+  background: #fff8e6; border: 1px solid #f5c94e; border-radius: var(--radius-sm);
+  padding: 8px 14px; font-size: 12px; color: #7c5700; margin-bottom: 20px;
+  display: flex; align-items: center; gap: 8px;
+}
+
+/* =============================================
+   Config & Audit
+============================================= */
+.config-section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 20px; }
+.config-section h3 { font-size: 14px; font-weight: 600; margin-bottom: 16px; }
+.config-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--grey-100); }
+.config-row:last-child { border-bottom: none; }
+.config-label { font-size: 13px; font-weight: 500; }
+.config-desc  { font-size: 12px; color: var(--grey-400); margin-top: 2px; }
+.config-val { display: flex; align-items: center; gap: 10px; }
+.config-val input[type=time],
+.config-val input[type=number] {
+  font-family: inherit; font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums;
+  padding: 6px 10px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+  color: var(--trst-dark); outline: none; width: 110px;
+}
+.config-val input:focus { border-color: var(--trst-blue-mid); box-shadow: 0 0 0 3px rgba(63,125,217,0.10); }
+.toggle {
+  width: 40px; height: 22px; border-radius: 999px; background: var(--grey-300);
+  cursor: pointer; position: relative; border: none; transition: background 0.2s;
+}
+.toggle.on { background: var(--success); }
+.toggle::after { content: ''; position: absolute; width: 16px; height: 16px; border-radius: 50%; background: white; top: 3px; left: 3px; transition: transform 0.2s; }
+.toggle.on::after { transform: translateX(18px); }
+
+.audit-table { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.audit-table th { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--grey-500); font-weight: 500; padding: 10px 16px; background: var(--grey-50); border-bottom: 1px solid var(--border); }
+.audit-table td { padding: 11px 16px; font-size: 12px; border-bottom: 1px solid var(--grey-100); vertical-align: middle; }
+.audit-table tr:last-child td { border-bottom: none; }
+.audit-type { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px; display: inline-block; }
+.audit-type.edit   { background: #e8f0fe; color: #1a56db; }
+.audit-type.strike { background: var(--amber-soft); color: var(--amber); }
+.audit-type.config { background: var(--green-soft); color: var(--success); }
+.audit-type.kiosk  { background: #f0e8fe; color: #7c3aed; }
+
+/* =============================================
+   Modals
+============================================= */
+.overlay {
+  display: none; position: fixed; inset: 0; z-index: 1000;
+  background: rgba(0,0,0,0.45); backdrop-filter: blur(2px);
+  align-items: center; justify-content: center; padding: 20px;
+}
+.overlay.open { display: flex; }
+.modal {
+  background: var(--surface); border-radius: var(--radius);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2); width: 100%; max-width: 500px;
+  max-height: 90vh; overflow-y: auto;
+}
+.modal-head {
+  padding: 20px 24px 16px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.modal-head h3 { font-size: 15px; font-weight: 600; }
+.modal-close { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--grey-400); line-height: 1; padding: 2px 6px; }
+.modal-body { padding: 20px 24px; }
+.modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 8px; }
+.form-group { margin-bottom: 16px; }
+.form-label { font-size: 12px; font-weight: 500; color: var(--grey-500); margin-bottom: 6px; display: block; }
+.form-input {
+  width: 100%; font-family: inherit; font-size: 14px; padding: 9px 12px;
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  color: var(--trst-dark); outline: none;
+}
+.form-input:focus { border-color: var(--trst-blue-mid); box-shadow: 0 0 0 3px rgba(63,125,217,0.10); }
+.form-hint { font-size: 11px; color: var(--grey-400); margin-top: 4px; }
+.motivo-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.motivo-chip { padding: 6px 12px; border-radius: 999px; border: 1px solid var(--border); background: var(--grey-50); font-size: 12px; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+.motivo-chip.selected { background: var(--trst-blue-dark); color: white; border-color: var(--trst-blue-dark); }
+.info-row { display: flex; justify-content: space-between; font-size: 13px; padding: 6px 0; border-bottom: 1px solid var(--grey-100); }
+.info-row:last-child { border-bottom: none; }
+.info-row .info-label { color: var(--grey-400); }
+.info-row .info-val { font-weight: 500; }
+.alert-warning { background: var(--amber-soft); border: 1px solid #f5c94e; border-radius: var(--radius-sm); padding: 10px 14px; font-size: 12px; color: #7c5700; margin-bottom: 16px; }
+.alert-danger  { background: var(--red-soft); border: 1px solid #fca5a5; border-radius: var(--radius-sm); padding: 10px 14px; font-size: 12px; color: var(--red); margin-bottom: 16px; }
+
+/* =============================================
+   Toast
+============================================= */
+#toast {
+  position: fixed; bottom: 28px; right: 28px; z-index: 9000;
+  background: #1a2744; color: white; font-size: 13px; font-weight: 500;
+  padding: 12px 18px; border-radius: var(--radius-sm);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+  transform: translateY(80px); opacity: 0; transition: all 0.25s;
+  display: flex; align-items: center; gap: 8px;
+}
+#toast.show { transform: translateY(0); opacity: 1; }
+#toast.success { background: var(--success); }
+#toast.warning { background: var(--warning); }
+#toast.error   { background: var(--critical); }
+
+/* =============================================
+   Footer
+============================================= */
+.footer { margin-top: 40px; }
+.footer-trstype-band { background: var(--grey-50); border-top: 1px solid var(--border); height: 72px; overflow: hidden; display: flex; align-items: center; padding: 0 28px; }
+.footer-trstype { font-family: 'TRSTYPE', sans-serif; font-size: 52px; line-height: 1.3; letter-spacing: 0; white-space: nowrap; overflow: hidden; width: 100%; color: transparent; -webkit-text-stroke: 2px rgba(63,125,217,0.40); user-select: none; pointer-events: none; }
+.footer-copy-strip { border-top: 1px solid var(--border); padding: 10px 28px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+.footer-copy { font-size: 11px; color: var(--grey-400); }
+
+/* =============================================
+   Misc
+============================================= */
+.empty-state { padding: 48px; text-align: center; color: var(--grey-400); }
+.empty-state .icon { font-size: 32px; margin-bottom: 12px; }
+.empty-state p { font-size: 14px; }
+.info-banner { font-size: 12px; background: var(--blue-soft); border: 1px solid var(--card-border); border-radius: var(--radius-sm); padding: 10px 14px; color: var(--trst-blue-dark); margin-bottom: 16px; }
+.section-divider { display: flex; align-items: center; gap: 16px; margin: 28px 0 20px; }
+.section-divider::before, .section-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.section-divider span { font-size: 12px; font-weight: 600; color: var(--trst-blue-mid); white-space: nowrap; }
+
+@media (max-width: 1024px) { .summary { grid-template-columns: repeat(2,1fr); } .wrap { padding: 20px; } }
+@media (max-width: 640px) { .header { height: auto; padding: 14px 16px; } .header-trstype { display: none; } .summary { grid-template-columns: repeat(2,1fr); } .wrap { padding: 14px 16px; } }
+</style>
+</head>
+<body>
+
+<!-- ============================================================ HEADER ============================================================ -->
+<header class="header">
+  <div class="header-trstype" aria-hidden="true">student safety palm vein biometric identity trst schools access presenca chamada frequencia colegio new way joao pessoa campina grande student safety palm vein</div>
+  <div class="header-overlay" aria-hidden="true"></div>
+  <div class="header-content">
+    <div class="header-left">
+      <div class="trst-badge" aria-label="TRST">
+        <svg width="30" height="28" viewBox="0 0 399 372" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M128.108 146.405H165.695V259.293H285.975V71.0005H323.562L323.562 259.293L285.975 297H128.108V146.405Z" fill="#F7FAFA"/>
+          <path d="M270.455 221.595H232.867V108.707L112.588 108.707L112.588 297H75L75.0002 108.707L112.588 71L270.455 71L270.455 221.595Z" fill="#F7FAFA"/>
+          <path d="M180.73 146.415H218.318V221.829H180.73V146.415Z" fill="#F7FAFA"/>
+        </svg>
+      </div>
+      <div class="header-titles">
+        <div class="app">Presença <span style="font-size:11px;opacity:0.6;font-weight:400;margin-left:4px;">MVP v1</span></div>
+        <div class="tenant">Powered by TRST · Colégio New Way</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <!-- New Way Logo -->
+      <svg width="42" height="42" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-label="Colégio New Way">
+        <circle cx="50" cy="50" r="49" fill="#0A2356"/>
+        <text font-family="Space Grotesk,sans-serif" font-size="9" font-weight="700" fill="white" letter-spacing="2">
+          <textPath href="#nwCircle" startOffset="10%">COLÉGIO · NEW WAY ·</textPath>
+        </text>
+        <path id="nwCircle" d="M50,18 a32,32 0 1,1 -0.01,0" fill="none"/>
+        <text x="50" y="47" font-family="Space Grotesk,sans-serif" font-size="11" font-weight="700" fill="white" text-anchor="middle">new</text>
+        <text x="50" y="60" font-family="Space Grotesk,sans-serif" font-size="11" font-weight="700" fill="white" text-anchor="middle">Way</text>
+      </svg>
+      <div class="nw-divider"></div>
+      <div class="campus-pill" id="campusPill">
+        <button class="on" onclick="setCampus('JPA',this)">JPA</button>
+        <button onclick="setCampus('CG',this)">CG</button>
+      </div>
+      <div class="nw-divider"></div>
+      <div class="user-chip" onclick="cycleRole()">
+        <div class="avatar" id="avatarEl">AN</div>
+        <span id="userNameEl">Anthony</span>
+        <div class="role-badge" id="roleBadgeEl">Staff</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ============================================================ TABS ============================================================ -->
+<nav class="tabs-bar" id="tabsBar">
+  <button class="tab-btn active" data-tab="chamada" onclick="switchTab('chamada',this)">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+    Chamada
+  </button>
+  <button class="tab-btn" data-tab="atrasos" onclick="switchTab('atrasos',this)">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    Atrasos <span class="badge" id="atrasoBadge">0</span>
+  </button>
+  <button class="tab-btn" id="kioskTab" data-tab="kiosk" onclick="switchTab('kiosk',this)" style="display:none">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+    Kiosk
+  </button>
+  <button class="tab-btn" id="configTab" data-tab="configuracoes" onclick="switchTab('configuracoes',this)" style="display:none">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+    Configurações
+  </button>
+  <button class="tab-btn" id="auditoriaTab" data-tab="auditoria" onclick="switchTab('auditoria',this)" style="display:none">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+    Auditoria
+  </button>
+</nav>
+
+<!-- ============================================================ TAB: CHAMADA ============================================================ -->
+<div class="tab-pane active" id="tab-chamada">
+  <!-- Sticky controls -->
+  <div class="controls">
+    <div class="controls-left">
+      <div class="search">
+        <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" id="searchInput" placeholder="Buscar aluno…" oninput="filterTable()">
+      </div>
+      <select class="ctrl-select" id="turmaFilter" onchange="filterTable()">
+        <option value="">Todas as turmas</option>
+        <option value="7A">7º A</option>
+        <option value="7B">7º B</option>
+        <option value="8A">8º A</option>
+        <option value="8B">8º B</option>
+        <option value="9A">9º A</option>
+        <option value="9B">9º B</option>
+      </select>
+      <select class="ctrl-select" id="statusFilter" onchange="filterTable()">
+        <option value="">Todos os status</option>
+        <option value="on-time">Presente (pontual)</option>
+        <option value="late">Atrasado</option>
+        <option value="absent">Ausente</option>
+      </select>
+      <input type="date" class="ctrl-select" id="dateFilter" onchange="filterTable()">
+    </div>
+    <div class="controls-right">
+      <button class="btn btn-ghost" onclick="exportCSV()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Exportar XLSX
+      </button>
+      <button class="btn btn-primary" id="addManualBtn" onclick="openAddModal()" style="display:none">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Registro manual
+      </button>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="page-head">
+      <div>
+        <h1 id="chamadaTitle">Chamada — <span id="campusLabel">JPA</span></h1>
+        <div class="subtitle" id="chamadaSubtitle">Carregando…</div>
+      </div>
+    </div>
+
+    <!-- KPI Summary -->
+    <div class="summary" id="kpiRow"></div>
+
+    <!-- Policy strip -->
+    <div class="policy">
+      <span><span class="live-dot"></span> Corte de atraso: <strong id="cutoffDisplay">07:35</strong> · Política de advertências: <strong id="strikePolicyDisplay">3 advertências = contato com responsável</strong></span>
+      <span id="policyEditLink" style="display:none"><button class="btn btn-ghost btn-sm" onclick="switchTab('configuracoes',document.querySelector('[data-tab=configuracoes]'))">Editar política</button></span>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrap">
+      <div class="table-head-meta">
+        <span class="count" id="tableCount">Mostrando todos os alunos</span>
+        <span id="lastUpdated" style="font-size:12px;color:var(--grey-400)"></span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Aluno</th>
+            <th>Turma</th>
+            <th>Entrada</th>
+            <th>Atrasos (advertências)</th>
+            <th>Biometria</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+
+    <!-- Legend -->
+    <div class="legend">
+      <div class="legend-item"><span class="dot ok"></span> Presente e pontual</div>
+      <div class="legend-item"><span class="dot amber"></span> Atrasado</div>
+      <div class="legend-item"><span class="dot red"></span> 3ª advertência — ação requerida</div>
+    </div>
+
+    <footer class="footer">
+      <div class="footer-trstype-band">
+        <div class="footer-trstype" aria-hidden="true">student safety palm vein biometric identity trst schools access presenca chamada frequencia colegio new way joao pessoa campina grande</div>
+      </div>
+      <div class="footer-copy-strip">
+        <div class="footer-copy">© 2026 TRST Innovations · Colégio New Way</div>
+        <div class="footer-copy">Powered by TRST · palm vein biometrics · MVP v1 — apenas para validação interna</div>
+      </div>
+    </footer>
+  </div>
+</div>
+
+<!-- ============================================================ TAB: ATRASOS ============================================================ -->
+<div class="tab-pane" id="tab-atrasos">
+  <div class="wrap">
+    <div class="page-head">
+      <div><h1>Atrasos</h1><div class="subtitle">Alunos que chegaram após o corte de <strong id="cutoffDisplayAtrasos">07:35</strong></div></div>
+    </div>
+    <div class="info-banner" id="atrasosInfo"></div>
+    <div class="atraso-cards" id="atrasosGrid"></div>
+  </div>
+</div>
+
+<!-- ============================================================ TAB: KIOSK ============================================================ -->
+<div class="tab-pane" id="tab-kiosk">
+  <div class="kiosk-supervisor-bar">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    Modo Kiosk — supervisionado por Gardênia. Apenas alunos registrados podem fazer check-in manual.
+  </div>
+  <div class="kiosk-view">
+    <div class="kiosk-header">Check-in de Entrada</div>
+    <div class="kiosk-sub">Busque o aluno pelo nome para registrar entrada manual</div>
+    <div class="kiosk-search-wrap">
+      <svg class="kiosk-search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" id="kioskSearchInput" placeholder="Nome do aluno…" oninput="kioskSearch(this.value)" autocomplete="off">
+    </div>
+    <ul class="kiosk-results" id="kioskResults" style="display:none"></ul>
+    <div id="kioskConfirm" style="display:none">
+      <div class="kiosk-checkin-confirm">
+        <div class="icon">✅</div>
+        <h3 id="kioskConfirmName"></h3>
+        <p id="kioskConfirmDetail"></p>
+      </div>
+      <button class="btn btn-ghost" style="margin-top:16px;width:100%" onclick="resetKiosk()">Novo check-in</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ TAB: CONFIGURAÇÕES ============================================================ -->
+<div class="tab-pane" id="tab-configuracoes">
+  <div class="wrap" style="max-width:720px">
+    <div class="page-head"><div><h1>Configurações</h1><div class="subtitle">Parâmetros de política de presença</div></div></div>
+
+    <div class="config-section">
+      <h3>Política de atraso</h3>
+      <div class="config-row">
+        <div><div class="config-label">Horário de corte</div><div class="config-desc">Chegadas após este horário contam como atraso</div></div>
+        <div class="config-val">
+          <input type="time" id="cutoffInput" value="07:35" onchange="updateCutoff(this.value)">
+          <button class="btn btn-primary btn-sm" onclick="saveCutoff()">Salvar</button>
+        </div>
+      </div>
+      <div class="config-row">
+        <div><div class="config-label">Limite de advertências</div><div class="config-desc">Número de advertências antes do contato com responsável</div></div>
+        <div class="config-val">
+          <input type="number" id="strikeLimit" value="3" min="1" max="10" style="width:80px" onchange="updateStrikeLimit(this.value)">
+        </div>
+      </div>
+      <div class="config-row">
+        <div><div class="config-label">Bloqueio de acesso na 3ª advertência</div><div class="config-desc">Ao atingir o limite de advertências, gerar alerta de bloqueio de política</div></div>
+        <div class="config-val">
+          <button class="toggle on" id="blockToggle" onclick="this.classList.toggle('on')"></button>
+        </div>
+      </div>
+      <div class="config-row">
+        <div><div class="config-label">Reset automático de advertências</div><div class="config-desc">Zerar advertências no início de cada semestre</div></div>
+        <div class="config-val">
+          <button class="toggle on" id="resetToggle" onclick="this.classList.toggle('on')"></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="config-section">
+      <h3>Kiosk — Fallback supervisionado</h3>
+      <div class="config-row">
+        <div><div class="config-label">Habilitar modo kiosk</div><div class="config-desc">Permite check-in manual supervisionado quando biometria falha</div></div>
+        <div class="config-val">
+          <button class="toggle on" id="kioskToggle" onclick="toggleKioskTab(this)"></button>
+        </div>
+      </div>
+      <div class="config-row">
+        <div><div class="config-label">Requer supervisor ativo</div><div class="config-desc">Kiosk só funciona com funcionário responsável presente</div></div>
+        <div class="config-val"><button class="toggle on" onclick="this.classList.toggle('on')"></button></div>
+      </div>
+    </div>
+
+    <div class="config-section">
+      <h3>Motivos predefinidos (edição manual)</h3>
+      <p style="font-size:13px;color:var(--grey-400);margin-bottom:14px">Motivos sugeridos ao editar entrada manualmente</p>
+      <div id="motivoList" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px"></div>
+      <div style="display:flex;gap:8px">
+        <input type="text" id="newMotivo" class="form-input" placeholder="Novo motivo…" style="max-width:260px">
+        <button class="btn btn-primary btn-sm" onclick="addMotivo()">Adicionar</button>
+      </div>
+    </div>
+
+    <div style="display:flex;justify-content:flex-end;margin-top:8px">
+      <button class="btn btn-primary" onclick="showToast('Configurações salvas com sucesso','success')">Salvar todas as configurações</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ TAB: AUDITORIA ============================================================ -->
+<div class="tab-pane" id="tab-auditoria">
+  <div class="wrap">
+    <div class="page-head">
+      <div><h1>Log de auditoria</h1><div class="subtitle">Todas as edições e ações — append-only, imutável</div></div>
+    </div>
+    <div class="info-banner">🔒 Cada ação é registrada com usuário, data e motivação. Entradas auditadas não podem ser excluídas — LGPD art. 7.</div>
+    <div class="audit-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Hora</th>
+            <th>Tipo</th>
+            <th>Aluno</th>
+            <th>Turma</th>
+            <th>Ação / Motivo</th>
+            <th>Usuário</th>
+          </tr>
+        </thead>
+        <tbody id="auditBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ MODAL: EDIT ENTRY ============================================================ -->
+<div class="overlay" id="editModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="editModalTitle">Editar entrada</h3>
+      <button class="modal-close" onclick="closeModal('editModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div id="editStudentInfo" style="margin-bottom:16px"></div>
+      <div class="alert-warning" id="editWarning" style="display:none"></div>
+      <div class="form-group">
+        <label class="form-label">Horário de entrada (editado)</label>
+        <input type="time" id="editTimeInput" class="form-input" value="07:20">
+        <div class="form-hint">Horário original será preservado no log de auditoria</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Motivo</label>
+        <div class="motivo-chips" id="motivoChips"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Observações (opcional)</label>
+        <textarea class="form-input" id="editNotes" rows="3" placeholder="Detalhes adicionais…" style="resize:vertical"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('editModal')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveEdit()">Salvar com flag de auditoria</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ MODAL: ADD MANUAL ============================================================ -->
+<div class="overlay" id="addModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Registro manual de entrada</h3>
+      <button class="modal-close" onclick="closeModal('addModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="alert-warning">⚠️ Registro manual — requer supervisor. Esta ação será auditada.</div>
+      <div class="form-group">
+        <label class="form-label">Aluno</label>
+        <input type="text" id="manualStudentSearch" class="form-input" placeholder="Buscar pelo nome…" oninput="searchManualStudent(this.value)">
+        <div id="manualStudentResults" style="margin-top:6px"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Horário de entrada</label>
+        <input type="time" id="manualTimeInput" class="form-input" value="07:40">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Motivo</label>
+        <div class="motivo-chips" id="addMotivoChips"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('addModal')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveManual()">Registrar entrada</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ MODAL: STRIKE ============================================================ -->
+<div class="overlay" id="strikeModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="strikeModalTitle">Gerenciar advertências</h3>
+      <button class="modal-close" onclick="closeModal('strikeModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div id="strikeStudentInfo" style="margin-bottom:16px"></div>
+      <div class="alert-danger" id="strikeDangerAlert" style="display:none">🚨 Aluno atingiu o limite de advertências — notificar responsável obrigatório.</div>
+      <div style="margin-bottom:16px">
+        <div class="form-label" style="margin-bottom:8px">Advertências ativas</div>
+        <div id="strikeDisplay" style="font-size:28px;letter-spacing:4px"></div>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:16px">
+        <button class="btn btn-warning btn-sm" onclick="addStrike()">+ Adicionar advertência</button>
+        <button class="btn btn-ghost btn-sm" onclick="removeStrike()">− Remover advertência</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Motivo</label>
+        <textarea class="form-input" id="strikeNotes" rows="2" placeholder="Contexto ou observação…" style="resize:vertical"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('strikeModal')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveStrike()">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ MODAL: STUDENT DETAIL ============================================================ -->
+<div class="overlay" id="detailModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="detailModalTitle">Detalhes do aluno</h3>
+      <button class="modal-close" onclick="closeModal('detailModal')">×</button>
+    </div>
+    <div class="modal-body" id="detailModalBody"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('detailModal')">Fechar</button>
+      <button class="btn btn-primary" onclick="openEditFromDetail()">Editar entrada</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<script>
+// ============================================================
+//   DATA — 20 fake students, realistic Brazilian school names
+// ============================================================
+const TODAY = new Date();
+const TODAY_STR = TODAY.toISOString().slice(0,10);
+
+const CLASSES = ['7A','7B','8A','8B','9A','9B'];
+const CLASS_LABELS = {'7A':'7º A','7B':'7º B','8A':'8º A','8B':'8º B','9A':'9º A','9B':'9º B'};
+
+const INITIAL_STUDENTS = [
+  {id:1, name:'Ana Clara Ferreira',      cls:'7A', strikes:0, bio:true,  entry:'07:12', status:'on-time', edited:false, editedBy:null, editMotivo:null},
+  {id:2, name:'Bruno Henrique Souza',    cls:'7A', strikes:1, bio:true,  entry:'07:38', status:'late',    edited:false, editedBy:null, editMotivo:null},
+  {id:3, name:'Carla Mendonça Lima',     cls:'7B', strikes:0, bio:true,  entry:'07:22', status:'on-time', edited:false, editedBy:null, editMotivo:null},
+  {id:4, name:'Diego Martins Costa',     cls:'7B', strikes:3, bio:true,  entry:'07:51', status:'late',    edited:false, editedBy:null, editMotivo:null},
+  {id:5, name:'Eduarda Oliveira Neto',   cls:'8A', strikes:0, bio:false, entry:null,    status:'absent',  edited:false, editedBy:null, editMotivo:null},
+  {id:6, name:'Felipe Araújo Santos',    cls:'8A', strikes:2, bio:true,  entry:'07:42', status:'late',    edited:false, editedBy:null, editMotivo:null},
+  {id:7, name:'Gabriela Rocha Pereira',  cls:'8A', strikes:0, bio:true,  entry:'07:08', status:'on-time', edited:false, editedBy:null, editMotivo:null},
+  {id:8, name:'Hugo Carvalho Pinto',     cls:'8B', strikes:1, bio:true,  entry:'07:41', status:'late',    edited:true,  editedBy:'Anthony', editMotivo:'Declaração médica'},
+  {id:9, name:'Isabella Teixeira Alves', cls:'8B', strikes:0, bio:true,  entry:'07:17', status:'on-time', edited:false, editedBy:null, editMotivo:null},
+  {id:10,name:'João Pedro Melo',         cls:'8B', strikes:0, bio:false, entry:null,    status:'absent',  edited:false, editedBy:null, editMotivo:null},
+  {id:11,name:'Kamila Nascimento Ramos', cls:'9A', strikes:0, bio:true,  entry:'07:29', status:'on-time', edited:false, editedBy:null, editMotivo:null},
+  {id:12,name:'Lucas Andrade Silva',     cls:'9A', strikes:3, bio:true,  entry:'07:55', status:'late',    edited:false, editedBy:null, editMotivo:null},
+  {id:13,name:'Mariana Costa Batista',   cls:'9A', strikes:1, bio:true,  entry:'07:37', status:'late',    edited:false, editedBy:null, editMotivo:null},
+  {id:14,name:'Nicolas Ferraz Gomes',    cls:'9A', strikes:0, bio:true,  entry:'07:19', status:'on-time', edited:false, editedBy:null, editMotivo:null},
+  {id:15,name:'Olivia Soares Cardoso',   cls:'9B', strikes:2, bio:true,  entry:'07:44', status:'late',    edited:false, editedBy:null, editMotivo:null},
+  {id:16,name:'Pedro Augusto Lima',      cls:'9B', strikes:0, bio:false, entry:null,    status:'absent',  edited:false, editedBy:null, editMotivo:null},
+  {id:17,name:'Quintão Rafael Dias',     cls:'7A', strikes:0, bio:true,  entry:'07:25', status:'on-time', edited:false, editedBy:null, editMotivo:null},
+  {id:18,name:'Rebeca Matos Cruz',       cls:'7B', strikes:1, bio:true,  entry:'07:39', status:'late',    edited:false, editedBy:null, editMotivo:null},
+  {id:19,name:'Samuel Torres Vieira',    cls:'9B', strikes:0, bio:true,  entry:'07:11', status:'on-time', edited:false, editedBy:null, editMotivo:null},
+  {id:20,name:'Tais Lopes Fonseca',      cls:'9B', strikes:3, bio:true,  entry:'08:02', status:'late',    edited:false, editedBy:null, editMotivo:null},
+];
+
+// Deep clone for live state
+let students = JSON.parse(JSON.stringify(INITIAL_STUDENTS));
+let auditLog = [
+  {ts:'08:00:12', type:'config', student:'-',             cls:'-',   action:'Sistema iniciado — corte 07:35',  user:'Sistema'},
+  {ts:'08:01:33', type:'edit',   student:'Hugo Carvalho', cls:'8B',  action:'Entrada editada: 07:41 → 07:41 | Motivo: Declaração médica', user:'Anthony'},
+];
+let motivos = ['Declaração médica','Transporte público','Problema familiar','Emergência','Outro'];
+let config = { cutoff: '07:35', strikeLimit: 3, campus: 'JPA' };
+let roles = [{name:'Anthony', initials:'AN', role:'Staff'}, {name:'Gardênia', initials:'GA', role:'Admin'}, {name:'Kiosk', initials:'KI', role:'Kiosk'}];
+let currentRole = 0;
+let currentEditId = null;
+let currentStrikeId = null;
+let currentDetailId = null;
+let selectedManualStudentId = null;
+
+// ============================================================
+//   INIT
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('dateFilter').value = TODAY_STR;
+  renderTable();
+  renderKPIs();
+  renderAtrasos();
+  renderAudit();
+  renderMotivos();
+  renderAddMotivos();
+  updateCutoffDisplay();
+  updateRoleUI();
+  document.getElementById('lastUpdated').textContent = `Atualizado: ${new Date().toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'})}`;
+  document.getElementById('chamadaSubtitle').innerHTML = `Hoje, <strong>${formatDatePT(TODAY)}</strong> · <strong>${students.length} alunos</strong> cadastrados`;
+});
+
+// ============================================================
+//   TABS
+// ============================================================
+function switchTab(tabId, btn) {
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-'+tabId).classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+
+// ============================================================
+//   CAMPUS
+// ============================================================
+function setCampus(c, btn) {
+  config.campus = c;
+  document.querySelectorAll('#campusPill button').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('campusLabel').textContent = c;
+  renderTable();
+  renderKPIs();
+}
+
+// ============================================================
+//   ROLE
+// ============================================================
+function cycleRole() {
+  currentRole = (currentRole + 1) % roles.length;
+  updateRoleUI();
+}
+function updateRoleUI() {
+  const r = roles[currentRole];
+  document.getElementById('avatarEl').textContent = r.initials;
+  document.getElementById('userNameEl').textContent = r.name;
+  document.getElementById('roleBadgeEl').textContent = r.role;
+  // Show/hide admin tabs
+  const isAdmin = r.role === 'Admin';
+  const isKiosk = r.role === 'Kiosk';
+  document.getElementById('configTab').style.display = isAdmin ? '' : 'none';
+  document.getElementById('auditoriaTab').style.display = isAdmin ? '' : 'none';
+  document.getElementById('addManualBtn').style.display = isAdmin ? '' : 'none';
+  document.getElementById('policyEditLink').style.display = isAdmin ? '' : 'none';
+  // Kiosk mode
+  document.getElementById('kioskTab').style.display = isKiosk ? '' : 'none';
+  if (isKiosk) switchTab('kiosk', document.querySelector('[data-tab=kiosk]'));
+  else if (document.getElementById('tab-kiosk').classList.contains('active')) switchTab('chamada', document.querySelector('[data-tab=chamada]'));
+}
+function toggleKioskTab(btn) {
+  btn.classList.toggle('on');
+}
+
+// ============================================================
+//   KPIs
+// ============================================================
+function renderKPIs() {
+  const total = students.length;
+  const present = students.filter(s => s.status !== 'absent').length;
+  const late = students.filter(s => s.status === 'late').length;
+  const absent = students.filter(s => s.status === 'absent').length;
+  const strike3 = students.filter(s => s.strikes >= config.strikeLimit).length;
+
+  const kpiRow = document.getElementById('kpiRow');
+  kpiRow.innerHTML = `
+    <div class="chip green" role="button" aria-pressed="false" onclick="setStatusFilter('on-time',this)">
+      <div class="label">Presentes e pontuais</div>
+      <div class="value">${present - late}</div>
+      <div class="sub">de ${total} alunos</div>
+    </div>
+    <div class="chip amber" role="button" aria-pressed="false" onclick="setStatusFilter('late',this)">
+      <div class="label">Atrasados</div>
+      <div class="value">${late}</div>
+      <div class="sub">após corte ${config.cutoff}</div>
+    </div>
+    <div class="chip red" role="button" aria-pressed="false" onclick="setStatusFilter('absent',this)">
+      <div class="label">Ausentes</div>
+      <div class="value">${absent}</div>
+      <div class="sub">sem registro hoje</div>
+    </div>
+    <div class="chip" role="button" aria-pressed="false" onclick="setStatusFilter('',this)">
+      <div class="label">3ª advertência ativa</div>
+      <div class="value" style="color:var(--critical)">${strike3}</div>
+      <div class="sub">contato requerido</div>
+    </div>
+  `;
+
+  // Update atrasos badge
+  document.getElementById('atrasoBadge').textContent = late;
+  document.getElementById('atrasoBadge').className = 'badge' + (strike3 > 0 ? ' red' : '');
+}
+
+function setStatusFilter(val, chip) {
+  document.getElementById('statusFilter').value = val;
+  document.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', 'false'));
+  chip.setAttribute('aria-pressed', 'true');
+  filterTable();
+}
+
+// ============================================================
+//   TABLE
+// ============================================================
+function renderTable() {
+  const search = (document.getElementById('searchInput').value || '').toLowerCase();
+  const turma  = document.getElementById('turmaFilter').value;
+  const status = document.getElementById('statusFilter').value;
+
+  const filtered = students.filter(s => {
+    if (search && !s.name.toLowerCase().includes(search)) return false;
+    if (turma  && s.cls !== turma)   return false;
+    if (status && s.status !== status) return false;
+    return true;
+  });
+
+  document.getElementById('tableCount').textContent = `Mostrando ${filtered.length} de ${students.length} alunos`;
+
+  const tbody = document.getElementById('tableBody');
+  if (filtered.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="icon">🔍</div><p>Nenhum aluno encontrado com estes filtros</p></div></td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(s => {
+    const rowCls = s.strikes >= config.strikeLimit ? 'row-red' : (s.status === 'late' ? 'row-amber' : '');
+    const starsTotal = config.strikeLimit;
+    const stars = Array.from({length:starsTotal}, (_,i) => `<span class="${i < s.strikes ? 'filled' : 'empty'}">${i < s.strikes ? '★' : '☆'}</span>`).join('');
+
+    let entryCell = '';
+    if (s.status === 'absent') {
+      entryCell = `<span class="entry"><span class="dot" style="background:var(--grey-300)"></span><span class="none">Ausente</span></span>`;
+    } else if (s.status === 'late') {
+      const [h,m] = s.entry.split(':');
+      const [ch,cm] = config.cutoff.split(':');
+      const diffMin = (parseInt(h)*60+parseInt(m)) - (parseInt(ch)*60+parseInt(cm));
+      entryCell = `<span class="entry late"><span class="dot"></span><span class="time">${s.entry}</span><span class="delta">+${diffMin}min</span></span>`;
+    } else {
+      entryCell = `<span class="entry"><span class="dot"></span><span>${s.entry}</span></span>`;
+    }
+    if (s.edited) entryCell += ` <span class="edited-flag" title="Editado por ${s.editedBy}">editado</span>`;
+
+    const bioCell = s.bio
+      ? `<span class="bio"><span class="bio-dot ok"></span>Registrada</span>`
+      : `<span class="bio"><span class="bio-dot pending"></span><span class="pend-link" onclick="openDetail(${s.id})">Pendente</span></span>`;
+
+    const strikeCell = `
+      <div class="strike-cell">
+        <span class="strikes">${stars}</span>
+        ${s.strikes > 0 ? `<button class="strike-cta" onclick="openStrike(${s.id})">Gerenciar</button>` : ''}
+      </div>`;
+
+    return `
+      <tr class="${rowCls}">
+        <td data-label="Aluno">
+          <div class="student-name">${s.name}</div>
+        </td>
+        <td data-label="Turma">${CLASS_LABELS[s.cls]}</td>
+        <td data-label="Entrada">${entryCell}</td>
+        <td data-label="Atrasos">${strikeCell}</td>
+        <td data-label="Biometria">${bioCell}</td>
+        <td>
+          <button class="kebab" onclick="openDetail(${s.id})" title="Detalhes / Editar">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+          </button>
+        </td>
+      </tr>`;
+  }).join('');
+}
+
+function filterTable() { renderTable(); }
+
+// ============================================================
+//   ATRASOS TAB
+// ============================================================
+function renderAtrasos() {
+  const late = students.filter(s => s.status === 'late');
+  document.getElementById('atrasosInfo').innerHTML = `${late.length} aluno(s) registraram entrada após ${config.cutoff} hoje. Alunos com 3ª advertência requerem contato imediato com responsável.`;
+  document.getElementById('cutoffDisplayAtrasos').textContent = config.cutoff;
+
+  const grid = document.getElementById('atrasosGrid');
+  if (late.length === 0) {
+    grid.innerHTML = '<div class="empty-state"><div class="icon">🎉</div><p>Nenhum atraso registrado hoje!</p></div>';
+    return;
+  }
+  const starsTotal = config.strikeLimit;
+  grid.innerHTML = late.map(s => {
+    const stars = Array.from({length:starsTotal}, (_,i) => `<span style="color:${i < s.strikes ? 'var(--amber-mid)' : 'var(--grey-300)'};">${i < s.strikes ? '★' : '☆'}</span>`).join('');
+    const [h,m] = s.entry.split(':');
+    const [ch,cm] = config.cutoff.split(':');
+    const diffMin = (parseInt(h)*60+parseInt(m)) - (parseInt(ch)*60+parseInt(cm));
+    const isThird = s.strikes >= config.strikeLimit;
+    return `
+      <div class="atraso-card ${isThird ? 'strike3' : ''}">
+        <div>
+          <div class="student">${s.name}</div>
+          <div class="class-name">${CLASS_LABELS[s.cls]}</div>
+          <div class="time-info">Entrada: ${s.entry} (+${diffMin}min) · ${s.strikes} advertência(s)</div>
+        </div>
+        <div class="actions">
+          <div class="strikes-display">${stars}</div>
+          ${isThird
+            ? `<button class="parent-cta" onclick="notifyParent(${s.id})">📞 Contatar resp.</button>`
+            : `<button class="strike-add-btn" onclick="openStrike(${s.id})">+ Advertência</button>`}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function notifyParent(id) {
+  const s = students.find(x => x.id === id);
+  showToast(`📞 Contato com responsável de ${s.name} registrado`, 'warning');
+  addAuditEntry('strike', s, `Contato com responsável registrado — ${s.strikes}ª advertência`);
+}
+
+// ============================================================
+//   MODALS
+// ============================================================
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.addEventListener('click', e => {
+  if (e.target.classList.contains('overlay')) e.target.classList.remove('open');
+});
+
+function openDetail(id) {
+  const s = students.find(x => x.id === id);
+  currentDetailId = id;
+  document.getElementById('detailModalTitle').textContent = s.name;
+  const starsTotal = config.strikeLimit;
+  const stars = Array.from({length:starsTotal}, (_,i) => `<span style="font-size:20px;color:${i < s.strikes ? 'var(--amber-mid)' : 'var(--grey-300)'};">${i < s.strikes ? '★' : '☆'}</span>`).join('');
+  document.getElementById('detailModalBody').innerHTML = `
+    <div class="info-row"><span class="info-label">Turma</span><span class="info-val">${CLASS_LABELS[s.cls]}</span></div>
+    <div class="info-row"><span class="info-label">Status hoje</span><span class="info-val">${s.status === 'on-time' ? '✅ Pontual' : s.status === 'late' ? '⏰ Atrasado' : '❌ Ausente'}</span></div>
+    <div class="info-row"><span class="info-label">Entrada</span><span class="info-val">${s.entry || '—'}</span></div>
+    <div class="info-row"><span class="info-label">Biometria</span><span class="info-val">${s.bio ? '✅ Registrada' : '⚠️ Pendente'}</span></div>
+    <div class="info-row"><span class="info-label">Greves</span><span class="info-val">${stars}</span></div>
+    ${s.edited ? `<div class="info-row"><span class="info-label">Editado por</span><span class="info-val">${s.editedBy} — ${s.editMotivo}</span></div>` : ''}
+    <div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--grey-100)">
+      <div style="font-size:12px;color:var(--grey-400);font-weight:500;margin-bottom:8px">ID do aluno</div>
+      <div style="font-family:monospace;font-size:13px;color:var(--grey-600)">NW-${String(s.id).padStart(4,'0')}-${config.campus}</div>
+    </div>`;
+  openModal('detailModal');
+}
+
+function openEditFromDetail() {
+  closeModal('detailModal');
+  openEdit(currentDetailId);
+}
+
+function openEdit(id) {
+  const s = students.find(x => x.id === id);
+  currentEditId = id;
+  document.getElementById('editModalTitle').textContent = `Editar entrada — ${s.name}`;
+  document.getElementById('editTimeInput').value = s.entry || '07:30';
+  document.getElementById('editNotes').value = '';
+  document.getElementById('editStudentInfo').innerHTML = `
+    <div class="info-row"><span class="info-label">Turma</span><span class="info-val">${CLASS_LABELS[s.cls]}</span></div>
+    <div class="info-row"><span class="info-label">Entrada original</span><span class="info-val">${s.entry || 'Ausente'}</span></div>`;
+  const warn = document.getElementById('editWarning');
+  if (s.edited) { warn.style.display=''; warn.textContent = `⚠️ Esta entrada já foi editada por ${s.editedBy}. Nova edição criará segundo registro de auditoria.`; }
+  else warn.style.display = 'none';
+  renderMotivosChips('motivoChips');
+  openModal('editModal');
+}
+
+function saveEdit() {
+  const s = students.find(x => x.id === currentEditId);
+  const newTime = document.getElementById('editTimeInput').value;
+  const notes = document.getElementById('editNotes').value.trim();
+  const selectedChip = document.querySelector('#motivoChips .motivo-chip.selected');
+  const motivo = selectedChip ? selectedChip.textContent : (notes || 'Sem motivo especificado');
+  const oldTime = s.entry || 'Ausente';
+  s.entry = newTime;
+  s.edited = true;
+  s.editedBy = roles[currentRole].name;
+  s.editMotivo = motivo;
+  const [h,m] = newTime.split(':');
+  const [ch,cm] = config.cutoff.split(':');
+  const late = (parseInt(h)*60+parseInt(m)) > (parseInt(ch)*60+parseInt(cm));
+  s.status = late ? 'late' : 'on-time';
+  addAuditEntry('edit', s, `Entrada editada: ${oldTime} → ${newTime} | Motivo: ${motivo}${notes ? ' | Obs: '+notes : ''}`);
+  closeModal('editModal');
+  renderTable();
+  renderKPIs();
+  renderAtrasos();
+  showToast('Entrada editada e auditada ✓', 'success');
+}
+
+function openAddModal() {
+  document.getElementById('manualStudentSearch').value = '';
+  document.getElementById('manualStudentResults').innerHTML = '';
+  document.getElementById('manualTimeInput').value = new Date().toTimeString().slice(0,5);
+  selectedManualStudentId = null;
+  renderMotivosChips('addMotivoChips');
+  openModal('addModal');
+}
+
+function searchManualStudent(val) {
+  const q = val.toLowerCase();
+  const res = document.getElementById('manualStudentResults');
+  if (!q) { res.innerHTML = ''; return; }
+  const matches = students.filter(s => s.name.toLowerCase().includes(q)).slice(0,5);
+  res.innerHTML = matches.map(s =>
+    `<div onclick="selectManualStudent(${s.id},'${s.name}')" style="padding:8px 10px;cursor:pointer;border:1px solid var(--border);border-radius:var(--radius-sm);margin-top:4px;font-size:13px;background:var(--grey-50)">${s.name} · ${CLASS_LABELS[s.cls]}</div>`
+  ).join('');
+}
+
+function selectManualStudent(id, name) {
+  selectedManualStudentId = id;
+  document.getElementById('manualStudentSearch').value = name;
+  document.getElementById('manualStudentResults').innerHTML = '';
+}
+
+function saveManual() {
+  if (!selectedManualStudentId) { showToast('Selecione um aluno primeiro', 'error'); return; }
+  const s = students.find(x => x.id === selectedManualStudentId);
+  const newTime = document.getElementById('manualTimeInput').value;
+  const selectedChip = document.querySelector('#addMotivoChips .motivo-chip.selected');
+  const motivo = selectedChip ? selectedChip.textContent : 'Registro manual';
+  s.entry = newTime;
+  s.edited = true;
+  s.editedBy = roles[currentRole].name;
+  s.editMotivo = motivo + ' (kiosk/manual)';
+  const [h,m] = newTime.split(':');
+  const [ch,cm] = config.cutoff.split(':');
+  s.status = (parseInt(h)*60+parseInt(m)) > (parseInt(ch)*60+parseInt(cm)) ? 'late' : 'on-time';
+  addAuditEntry('kiosk', s, `Check-in manual: ${newTime} | Motivo: ${motivo} | Por: ${roles[currentRole].name}`);
+  closeModal('addModal');
+  renderTable();
+  renderKPIs();
+  renderAtrasos();
+  showToast(`Check-in manual de ${s.name} registrado ✓`, 'success');
+}
+
+function openStrike(id) {
+  const s = students.find(x => x.id === id);
+  currentStrikeId = id;
+  document.getElementById('strikeModalTitle').textContent = `Advertências — ${s.name}`;
+  document.getElementById('strikeNotes').value = '';
+  renderStrikeDisplay(s);
+  const alert = document.getElementById('strikeDangerAlert');
+  alert.style.display = s.strikes >= config.strikeLimit ? '' : 'none';
+  const info = document.getElementById('strikeStudentInfo');
+  info.innerHTML = `
+    <div class="info-row"><span class="info-label">Turma</span><span class="info-val">${CLASS_LABELS[s.cls]}</span></div>
+    <div class="info-row"><span class="info-label">Entrada hoje</span><span class="info-val">${s.entry || 'Ausente'}</span></div>`;
+  openModal('strikeModal');
+}
+
+function renderStrikeDisplay(s) {
+  const starsTotal = config.strikeLimit;
+  const stars = Array.from({length:starsTotal}, (_,i) =>
+    `<span style="color:${i < s.strikes ? (s.strikes >= config.strikeLimit ? 'var(--red-mid)' : 'var(--amber-mid)') : 'var(--grey-300)'};">${i < s.strikes ? '★' : '☆'}</span>`
+  ).join('');
+  document.getElementById('strikeDisplay').innerHTML = stars;
+  document.getElementById('strikeDangerAlert').style.display = s.strikes >= config.strikeLimit ? '' : 'none';
+}
+
+function addStrike() {
+  const s = students.find(x => x.id === currentStrikeId);
+  s.strikes = Math.min(s.strikes + 1, config.strikeLimit + 1);
+  renderStrikeDisplay(s);
+}
+function removeStrike() {
+  const s = students.find(x => x.id === currentStrikeId);
+  s.strikes = Math.max(s.strikes - 1, 0);
+  renderStrikeDisplay(s);
+}
+function saveStrike() {
+  const s = students.find(x => x.id === currentStrikeId);
+  const notes = document.getElementById('strikeNotes').value.trim();
+  addAuditEntry('strike', s, `Advertências atualizadas: ${s.strikes} ativa(s)${notes ? ' | '+notes : ''}`);
+  closeModal('strikeModal');
+  renderTable();
+  renderKPIs();
+  renderAtrasos();
+  showToast('Advertências atualizadas ✓', s.strikes >= config.strikeLimit ? 'warning' : 'success');
+}
+
+// ============================================================
+//   KIOSK
+// ============================================================
+function kioskSearch(val) {
+  const q = val.toLowerCase();
+  const res = document.getElementById('kioskResults');
+  const confirm = document.getElementById('kioskConfirm');
+  confirm.style.display = 'none';
+  if (!q || q.length < 2) { res.style.display = 'none'; return; }
+  const matches = students.filter(s => s.name.toLowerCase().includes(q)).slice(0,6);
+  if (!matches.length) { res.style.display = 'none'; return; }
+  res.style.display = '';
+  res.innerHTML = matches.map(s => `
+    <li class="kiosk-result-item" onclick="kioskCheckin(${s.id})">
+      <div>
+        <div class="name">${s.name}</div>
+        <div class="cls">${CLASS_LABELS[s.cls]}</div>
+      </div>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+    </li>`).join('');
+}
+
+function kioskCheckin(id) {
+  const s = students.find(x => x.id === id);
+  const now = new Date().toTimeString().slice(0,5);
+  const [h,m] = now.split(':');
+  const [ch,cm] = config.cutoff.split(':');
+  const late = (parseInt(h)*60+parseInt(m)) > (parseInt(ch)*60+parseInt(cm));
+  s.entry = now;
+  s.edited = true;
+  s.editedBy = 'Kiosk supervisionado';
+  s.editMotivo = 'Fallback biométrico';
+  s.status = late ? 'late' : 'on-time';
+  addAuditEntry('kiosk', s, `Kiosk check-in: ${now}${late ? ' (ATRASADO)' : ' (pontual)'}`);
+  document.getElementById('kioskResults').style.display = 'none';
+  document.getElementById('kioskSearchInput').value = '';
+  document.getElementById('kioskConfirmName').textContent = s.name;
+  document.getElementById('kioskConfirmDetail').textContent = `${CLASS_LABELS[s.cls]} · Entrada: ${now} · ${late ? '⏰ Atrasado' : '✅ Pontual'}`;
+  document.getElementById('kioskConfirm').style.display = '';
+  renderTable(); renderKPIs(); renderAtrasos();
+  showToast('Check-in registrado ✓', late ? 'warning' : 'success');
+}
+
+function resetKiosk() {
+  document.getElementById('kioskConfirm').style.display = 'none';
+  document.getElementById('kioskSearchInput').value = '';
+  document.getElementById('kioskResults').style.display = 'none';
+}
+
+// ============================================================
+//   CONFIG
+// ============================================================
+function updateCutoff(val) { }
+function saveCutoff() {
+  const val = document.getElementById('cutoffInput').value;
+  config.cutoff = val;
+  updateCutoffDisplay();
+  addAuditEntry('config', {name:'—', cls:'—'}, `Horário de corte alterado para ${val}`);
+  showToast(`Horário de corte atualizado: ${val}`, 'success');
+  renderTable(); renderKPIs(); renderAtrasos();
+}
+function updateStrikeLimit(val) {
+  config.strikeLimit = parseInt(val) || 3;
+  updateCutoffDisplay();
+  renderTable(); renderKPIs(); renderAtrasos();
+}
+function updateCutoffDisplay() {
+  document.getElementById('cutoffDisplay').textContent = config.cutoff;
+  document.getElementById('cutoffDisplayAtrasos').textContent = config.cutoff;
+  document.getElementById('strikePolicyDisplay').textContent = `${config.strikeLimit} advertências = contato com responsável`;
+}
+
+function renderMotivos() {
+  const el = document.getElementById('motivoList');
+  if (!el) return;
+  el.innerHTML = motivos.map((m,i) => `
+    <span style="display:inline-flex;align-items:center;gap:4px;padding:6px 12px;background:var(--grey-50);border:1px solid var(--border);border-radius:999px;font-size:12px">
+      ${m}
+      <button onclick="removeMotivo(${i})" style="background:none;border:none;color:var(--grey-400);cursor:pointer;font-size:14px;line-height:1;padding:0 0 0 2px">×</button>
+    </span>`).join('');
+}
+function addMotivo() {
+  const input = document.getElementById('newMotivo');
+  const val = input.value.trim();
+  if (!val) return;
+  motivos.push(val);
+  input.value = '';
+  renderMotivos();
+  renderMotivosChips('motivoChips');
+  renderMotivosChips('addMotivoChips');
+  showToast('Motivo adicionado ✓', 'success');
+}
+function removeMotivo(i) {
+  motivos.splice(i, 1);
+  renderMotivos();
+}
+function renderMotivosChips(containerId) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  el.innerHTML = motivos.map(m =>
+    `<button class="motivo-chip" onclick="selectMotivo(this)">${m}</button>`
+  ).join('');
+}
+function renderAddMotivos() { renderMotivosChips('addMotivoChips'); }
+function selectMotivo(btn) {
+  const container = btn.closest('.motivo-chips');
+  container.querySelectorAll('.motivo-chip').forEach(c => c.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+// ============================================================
+//   AUDIT
+// ============================================================
+function addAuditEntry(type, s, action) {
+  const now = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  auditLog.unshift({ts: now, type, student: s.name, cls: s.cls === '-' ? '-' : CLASS_LABELS[s.cls], action, user: roles[currentRole].name});
+  renderAudit();
+}
+function renderAudit() {
+  const tbody = document.getElementById('auditBody');
+  if (!tbody) return;
+  tbody.innerHTML = auditLog.map(e => `
+    <tr>
+      <td style="font-variant-numeric:tabular-nums;color:var(--grey-400)">${e.ts}</td>
+      <td><span class="audit-type ${e.type}">${e.type}</span></td>
+      <td style="font-weight:500">${e.student}</td>
+      <td>${e.cls}</td>
+      <td style="color:var(--grey-600);max-width:320px">${e.action}</td>
+      <td style="color:var(--grey-400)">${e.user}</td>
+    </tr>`).join('');
+}
+
+// ============================================================
+//   EXPORT
+// ============================================================
+function exportCSV() {
+  const date = document.getElementById('dateFilter').value || TODAY_STR;
+  const rows = [
+    ['Nome','Turma','Entrada','Status','Greves','Biometria','Editado','Editado por','Motivo']
+  ];
+  students.forEach(s => {
+    rows.push([
+      s.name, CLASS_LABELS[s.cls], s.entry||'', s.status,
+      s.strikes, s.bio ? 'Sim' : 'Não',
+      s.edited ? 'Sim' : 'Não', s.editedBy||'', s.editMotivo||''
+    ]);
+  });
+  const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `presenca_${config.campus}_${date}.csv`; a.click();
+  URL.revokeObjectURL(url);
+  addAuditEntry('config', {name:'—',cls:'-'}, `Exportação CSV: ${config.campus} ${date} — ${students.length} alunos`);
+  showToast('Exportação CSV gerada ✓', 'success');
+}
+
+// ============================================================
+//   TOAST
+// ============================================================
+let toastTimer;
+function showToast(msg, type='') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'show ' + type;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.className = '', 3000);
+}
+
+// ============================================================
+//   UTILS
+// ============================================================
+function formatDatePT(d) {
+  return d.toLocaleDateString('pt-BR', {weekday:'long', year:'numeric', month:'long', day:'numeric'});
+}
+</script>
+</body>
+</html>
