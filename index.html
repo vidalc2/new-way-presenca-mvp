@@ -97,18 +97,22 @@ button { font-family: inherit; }
   font-size: 12px; font-weight: 500; font-family: inherit; transition: all 0.15s;
 }
 .campus-pill .on { background: rgba(255,255,255,0.18); color: #F7FAFA; }
-.user-chip { display: flex; align-items: center; gap: 8px; font-size: 13px; color: rgba(247,250,250,0.8); cursor: pointer; }
-.avatar {
-  width: 30px; height: 30px; border-radius: 50%;
-  background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.2);
-  color: #F7FAFA; display: flex; align-items: center; justify-content: center;
-  font-weight: 600; font-size: 12px;
+.mode-switch { display: flex; align-items: center; gap: 8px; }
+.mode-btn {
+  border: 1px solid transparent;
+  border-radius: 999px;
+  padding: 7px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+  opacity: 0.78;
 }
-.role-badge {
-  font-size: 10px; font-weight: 600; padding: 2px 8px;
-  border-radius: 999px; border: 1px solid rgba(255,255,255,0.25);
-  background: rgba(255,255,255,0.10); color: rgba(247,250,250,0.85);
-}
+.mode-btn:hover { opacity: 1; }
+.mode-btn.active { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(0,0,0,0.18); opacity: 1; }
+.mode-btn-admin { background: #c93d32; color: #fff4f3; }
+.mode-btn-kiosk { background: #f5a623; color: #4c3000; }
 
 /* =============================================
    Tab nav
@@ -497,10 +501,9 @@ tr.row-red .strikes .filled { color: var(--red-mid); }
         <button onclick="setCampus('CG',this)">CG</button>
       </div>
       <div class="nw-divider"></div>
-      <div class="user-chip" onclick="cycleRole()">
-        <div class="avatar" id="avatarEl">AN</div>
-        <span id="userNameEl">Anthony</span>
-        <div class="role-badge" id="roleBadgeEl">Staff</div>
+      <div class="mode-switch" aria-label="Modo da demo">
+        <button class="mode-btn mode-btn-admin active" id="adminModeBtn" onclick="setMode('admin')">Coordenacao</button>
+        <button class="mode-btn mode-btn-kiosk" id="kioskModeBtn" onclick="setMode('kiosk')">Modo Quiosque</button>
       </div>
     </div>
   </div>
@@ -518,7 +521,7 @@ tr.row-red .strikes .filled { color: var(--red-mid); }
   </button>
   <button class="tab-btn" id="kioskTab" data-tab="kiosk" onclick="switchTab('kiosk',this)" style="display:none">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
-    Kiosk
+    Modo Quiosque
   </button>
   <button class="tab-btn" id="configTab" data-tab="configuracoes" onclick="switchTab('configuracoes',this)" style="display:none">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
@@ -637,7 +640,7 @@ tr.row-red .strikes .filled { color: var(--red-mid); }
 <div class="tab-pane" id="tab-kiosk">
   <div class="kiosk-supervisor-bar">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-    Modo Kiosk — supervisionado por Gardênia. Apenas alunos registrados podem fazer check-in manual.
+    Modo Quiosque — supervisao assistida. Apenas alunos registrados podem fazer check-in manual.
   </div>
   <div class="kiosk-view">
     <div class="kiosk-header">Check-in de Entrada</div>
@@ -693,15 +696,15 @@ tr.row-red .strikes .filled { color: var(--red-mid); }
     </div>
 
     <div class="config-section">
-      <h3>Kiosk — Fallback supervisionado</h3>
+      <h3>Modo Quiosque — Fallback supervisionado</h3>
       <div class="config-row">
-        <div><div class="config-label">Habilitar modo kiosk</div><div class="config-desc">Permite check-in manual supervisionado quando biometria falha</div></div>
+        <div><div class="config-label">Habilitar Modo Quiosque</div><div class="config-desc">Permite check-in manual supervisionado quando biometria falha</div></div>
         <div class="config-val">
           <button class="toggle on" id="kioskToggle" onclick="toggleKioskTab(this)"></button>
         </div>
       </div>
       <div class="config-row">
-        <div><div class="config-label">Requer supervisor ativo</div><div class="config-desc">Kiosk só funciona com funcionário responsável presente</div></div>
+        <div><div class="config-label">Requer supervisor ativo</div><div class="config-desc">Modo Quiosque so funciona com responsavel presente</div></div>
         <div class="config-val"><button class="toggle on" onclick="this.classList.toggle('on')"></button></div>
       </div>
     </div>
@@ -874,7 +877,7 @@ const INITIAL_STUDENTS = [
   {id:5, name:'Eduarda Oliveira Neto',   cls:'8A', strikes:0, bio:false, entry:null,    status:'absent',  edited:false, editedBy:null, editMotivo:null},
   {id:6, name:'Felipe Araújo Santos',    cls:'8A', strikes:2, bio:true,  entry:'07:42', status:'late',    edited:false, editedBy:null, editMotivo:null},
   {id:7, name:'Gabriela Rocha Pereira',  cls:'8A', strikes:0, bio:true,  entry:'07:08', status:'on-time', edited:false, editedBy:null, editMotivo:null},
-  {id:8, name:'Hugo Carvalho Pinto',     cls:'8B', strikes:1, bio:true,  entry:'07:41', status:'late',    edited:true,  editedBy:'Anthony', editMotivo:'Declaração médica'},
+  {id:8, name:'Hugo Carvalho Pinto',     cls:'8B', strikes:1, bio:true,  entry:'07:41', status:'late',    edited:true,  editedBy:'Coordenacao', editMotivo:'Declaração médica'},
   {id:9, name:'Isabella Teixeira Alves', cls:'8B', strikes:0, bio:true,  entry:'07:17', status:'on-time', edited:false, editedBy:null, editMotivo:null},
   {id:10,name:'João Pedro Melo',         cls:'8B', strikes:0, bio:false, entry:null,    status:'absent',  edited:false, editedBy:null, editMotivo:null},
   {id:11,name:'Kamila Nascimento Ramos', cls:'9A', strikes:0, bio:true,  entry:'07:29', status:'on-time', edited:false, editedBy:null, editMotivo:null},
@@ -893,12 +896,11 @@ const INITIAL_STUDENTS = [
 let students = JSON.parse(JSON.stringify(INITIAL_STUDENTS));
 let auditLog = [
   {ts:'08:00:12', type:'config', student:'-',             cls:'-',   action:'Sistema iniciado — corte 07:35',  user:'Sistema'},
-  {ts:'08:01:33', type:'edit',   student:'Hugo Carvalho', cls:'8B',  action:'Entrada editada: 07:41 → 07:41 | Motivo: Declaração médica', user:'Anthony'},
+  {ts:'08:01:33', type:'edit',   student:'Hugo Carvalho', cls:'8B',  action:'Entrada editada: 07:41 → 07:41 | Motivo: Declaração médica', user:'Coordenacao'},
 ];
 let motivos = ['Declaração médica','Transporte público','Problema familiar','Emergência','Outro'];
 let config = { cutoff: '07:35', strikeLimit: 3, campus: 'JPA' };
-let roles = [{name:'Anthony', initials:'AN', role:'Staff'}, {name:'Gardênia', initials:'GA', role:'Admin'}, {name:'Kiosk', initials:'KI', role:'Kiosk'}];
-let currentRole = 0;
+let currentMode = 'admin';
 let currentEditId = null;
 let currentStrikeId = null;
 let currentDetailId = null;
@@ -916,7 +918,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderMotivos();
   renderAddMotivos();
   updateCutoffDisplay();
-  updateRoleUI();
+  updateModeUI();
   document.getElementById('lastUpdated').textContent = `Atualizado: ${new Date().toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'})}`;
   document.getElementById('chamadaSubtitle').innerHTML = `Hoje, <strong>${formatDatePT(TODAY)}</strong> · <strong>${students.length} alunos</strong> cadastrados`;
 });
@@ -944,25 +946,21 @@ function setCampus(c, btn) {
 }
 
 // ============================================================
-//   ROLE
+//   MODE
 // ============================================================
-function cycleRole() {
-  currentRole = (currentRole + 1) % roles.length;
-  updateRoleUI();
+function setMode(mode) {
+  currentMode = mode;
+  updateModeUI();
 }
-function updateRoleUI() {
-  const r = roles[currentRole];
-  document.getElementById('avatarEl').textContent = r.initials;
-  document.getElementById('userNameEl').textContent = r.name;
-  document.getElementById('roleBadgeEl').textContent = r.role;
-  // Show/hide admin tabs
-  const isAdmin = r.role === 'Admin';
-  const isKiosk = r.role === 'Kiosk';
+function updateModeUI() {
+  const isAdmin = currentMode === 'admin';
+  const isKiosk = currentMode === 'kiosk';
+  document.getElementById('adminModeBtn').classList.toggle('active', isAdmin);
+  document.getElementById('kioskModeBtn').classList.toggle('active', isKiosk);
   document.getElementById('configTab').style.display = isAdmin ? '' : 'none';
   document.getElementById('auditoriaTab').style.display = isAdmin ? '' : 'none';
   document.getElementById('addManualBtn').style.display = isAdmin ? '' : 'none';
   document.getElementById('policyEditLink').style.display = isAdmin ? '' : 'none';
-  // Kiosk mode
   document.getElementById('kioskTab').style.display = isKiosk ? '' : 'none';
   if (isKiosk) switchTab('kiosk', document.querySelector('[data-tab=kiosk]'));
   else if (document.getElementById('tab-kiosk').classList.contains('active')) switchTab('chamada', document.querySelector('[data-tab=chamada]'));
@@ -1190,7 +1188,7 @@ function saveEdit() {
   const oldTime = s.entry || 'Ausente';
   s.entry = newTime;
   s.edited = true;
-  s.editedBy = roles[currentRole].name;
+  s.editedBy = currentMode === 'admin' ? 'Coordenacao' : 'Modo Quiosque';
   s.editMotivo = motivo;
   const [h,m] = newTime.split(':');
   const [ch,cm] = config.cutoff.split(':');
@@ -1237,12 +1235,12 @@ function saveManual() {
   const motivo = selectedChip ? selectedChip.textContent : 'Registro manual';
   s.entry = newTime;
   s.edited = true;
-  s.editedBy = roles[currentRole].name;
+  s.editedBy = currentMode === 'admin' ? 'Coordenacao' : 'Modo Quiosque';
   s.editMotivo = motivo + ' (kiosk/manual)';
   const [h,m] = newTime.split(':');
   const [ch,cm] = config.cutoff.split(':');
   s.status = (parseInt(h)*60+parseInt(m)) > (parseInt(ch)*60+parseInt(cm)) ? 'late' : 'on-time';
-  addAuditEntry('kiosk', s, `Check-in manual: ${newTime} | Motivo: ${motivo} | Por: ${roles[currentRole].name}`);
+  addAuditEntry('kiosk', s, `Check-in manual: ${newTime} | Motivo: ${motivo} | Por: ${currentMode === 'admin' ? 'Coordenacao' : 'Modo Quiosque'}`);
   closeModal('addModal');
   renderTable();
   renderKPIs();
@@ -1325,7 +1323,7 @@ function kioskCheckin(id) {
   const late = (parseInt(h)*60+parseInt(m)) > (parseInt(ch)*60+parseInt(cm));
   s.entry = now;
   s.edited = true;
-  s.editedBy = 'Kiosk supervisionado';
+  s.editedBy = 'Modo Quiosque';
   s.editMotivo = 'Fallback biométrico';
   s.status = late ? 'late' : 'on-time';
   addAuditEntry('kiosk', s, `Kiosk check-in: ${now}${late ? ' (ATRASADO)' : ' (pontual)'}`);
@@ -1410,7 +1408,7 @@ function selectMotivo(btn) {
 // ============================================================
 function addAuditEntry(type, s, action) {
   const now = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
-  auditLog.unshift({ts: now, type, student: s.name, cls: s.cls === '-' ? '-' : CLASS_LABELS[s.cls], action, user: roles[currentRole].name});
+  auditLog.unshift({ts: now, type, student: s.name, cls: s.cls === '-' ? '-' : CLASS_LABELS[s.cls], action, user: currentMode === 'admin' ? 'Coordenacao' : 'Modo Quiosque'});
   renderAudit();
 }
 function renderAudit() {
