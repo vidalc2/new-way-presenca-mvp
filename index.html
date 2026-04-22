@@ -8,16 +8,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 /* =============================================
-   TRSTYPE decorative font
-============================================= */
-@font-face {
-  font-family: 'TRSTYPE';
-  src: url('data:font/opentype;base64,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2/wm91748Ab7romL+PP7XYsFDoz5uhKL913b917c917c911ypNv3XRPyjAQlCvet/boVJgr3r/26FSYKE/r3r/26FScKDqF2oHYcBLh2oHYSi/dd2/de3Pde3PddcqTb910TrkCMBCEK960c+0cVIgr3rxz7RxUiChOPQPevHPtHFScKDoz4J/tfrWn3Xvdf9133XvddEhMYHAS6BCgKHPrO/CcV+135kvddBxOY/ZL8JxUTWPwn+Hf3XAcTOPev918G3PgnFftd+Hf3XQcOjPgn+1+t+Af3Xfde910Si/h3EzgcBLoEKAoc+s78JxUoChO4HPrO/CcVE3j8J/h3BxO4+CcHDoz48fjvdqB2Eov3Xdv3Xtz3Xtz3Xdv3XRPfjAQhCvetHPtHFSYK96/9uhUmCvev/boVJQr3rf26FSYKDqF2oHb48fdd9173XRKL913b917c917c913b910Tv4CMBCKKDqF2oHb6g3YSi/dd2/de3Pde3PddcqTb910TvICLBCUK9639uhUrCvev/oQVKwoTvoD3r/6EFSwKDqB2oHb6g3YSi/dd2/de3Pde3PddcqTb910TvICLBCUK9639uhUmCvev/boVKwoTvoD3r/6EFSwKDqF2oHb4wLyL+PASi/dd2/de3Pde3Pdd2/ddEx+A+PIE91348PtdBvet/PAVIwr3r/zwFSMKE5+A+Mgc+0cV91748fuu+PAGE6+A+139uvetBg6L+PH7Xfdd9133XRKL913b917c917c913b910Tv4sEKgr3rfzxFSkK96/8KBX3Xvm7+14G96/7XhX3Xfde+10G963+hBX3XvjxBhN//Hf7XfetBg6M91z6hHagdhKL913b917c917c913b910T3/goBCUK9639uhUmCvev/boVJgr3rxz7RxUhCvetHPtHFfde91z7XgYOoXagdvdc9173X/dd9173XRKL913b917c917c913b910Tv8CMBCUK9639uhUmCvev914V9173XfteBvjIHPtHFSYK+6388hX7XPdd+Cf8ePtfB/ev+PIV+6/7Xfh4+PD7XQYOi/m69173XQGL913b917c917c913b910DiwQlCvet/boVJgr3r/26FSYK968W/br3Xfm6B9v3XhX+hPdeHAS5/ZL7XQcOjPm6/PL3Xvdf9133XvddEov3Xdv3Xtz3Xtz3Xfsp9ynb910TnkCMBCUK9639uhUmCvev/boVJgoTH0D3r/deFfdd9137XQYTn0D8JwT9uvdd91zb+1z3Xvgn+64HEz9A9173rvddBw6L+PH7Xfdd+CZ2Eov3Xdulcfde3Pde3PddcqTb910TskD4yBYrCvjI/oMV91748PuuBhNywPgn+13+hPdd+CjbBxO6QP4z/CgVE3pA+Cjb/Cj3XgcTukD48fx3/PEHDoz48fjvdqB2Eov3Xdv3Xtz3Xtz3XXKk2/ddE5yA962MFSkK96/88RX3XvqE+68GE9yA9137Xvwn968H+Mj9uhX3Xvjx+64GE52A+PD7XRz7R/dd+CjbB/4z/CgV+PH7XfzxBw74Kfdd+CZ2Eov3Xdulcfde3Pde3PddcqTb910T5ID4yI0VJAr4yP6DFfde+PEGE+aA+674Jvtd/oP3Xfgn2wb+M/wnFfgnBxP0gNsGE+yA/Cf3XvqDBxP0gPte/Cf7rfzwBg6N+PD3XfddEov3Xdv3Xtz3Xtz3XXKk2/ddE/mNBPdd+PD7XQb3rfzwFSMK96/88BUjChP996/88BX3Xfgn2/wn91748Puu9133rvde/HcGDoz3XPqEdqB2Eov3Xdv3Xtz3Xtz3Xdv3XRPfjAQhCvetHPtHFSYK96/9uhUmCvev/boVJQr3rf26Ffde91z7XgYOjPgn+1/3Xvdf9133XvddEvr8910TOBwEugQoChz6zvwnFftd+ZL3XQcTuP2S/CcVE3j8J/h391z3r/dfB/2S+18V+vz3XxX7X/de918HDhwF8xSLFYyL+oP3XouLBh4KAEFmZ/8MCYsMCvddCq2a9yuMjPdd912M912MDAz3XQukjPcPv4z3rQwNHAA/EwANAQEJEhsjKzM7TldfZ2+C9175vPteBgv3XRwEuftdBgv3XhwEufteBgv3Xvjw+14GC/de+oP7XgYL9135uvtdBgv3Xvm6+14GC/dd+Cfb/Cf3Xvjx+673XftdBgv7XRwFMvddBwv3Xvjx+14GC/dd+PH7XQYL9176hPteBgv3Xfgo2/wo91748fuu+Cf7XQYLAAABAAAADAAAABAAGAACAAAABAAAAAIAAAABAAAAAQAABfMAMQXzAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAADf1speAAAAAOQu14sAAAAA5FPRsQ==') format('opentype');
-  font-weight: normal;
-  font-style: normal;
-}
-
-/* =============================================
    CSS Variables — TRST Blue scheme
 ============================================= */
 :root {
@@ -72,15 +62,6 @@ button { font-family: inherit; }
   background: linear-gradient(135deg, #0e1c38 0%, var(--trst-blue-dark) 45%, var(--trst-blue-mid) 100%);
   overflow: hidden;
   display: flex; align-items: center; padding: 0 28px;
-}
-.header-trstype {
-  position: absolute; inset: 0;
-  font-family: 'TRSTYPE', sans-serif;
-  font-size: 60px; line-height: 1.3; letter-spacing: 0;
-  word-break: break-all;
-  color: transparent;
-  -webkit-text-stroke: 2px rgba(63,125,217,0.20);
-  overflow: hidden; user-select: none; pointer-events: none;
 }
 .header-overlay {
   position: absolute; inset: 0;
@@ -462,8 +443,6 @@ tr.row-red .strikes .filled { color: var(--red-mid); }
    Footer
 ============================================= */
 .footer { margin-top: 40px; }
-.footer-trstype-band { background: var(--grey-50); border-top: 1px solid var(--border); height: 72px; overflow: hidden; display: flex; align-items: center; padding: 0 28px; }
-.footer-trstype { font-family: 'TRSTYPE', sans-serif; font-size: 52px; line-height: 1.3; letter-spacing: 0; white-space: nowrap; overflow: hidden; width: 100%; color: transparent; -webkit-text-stroke: 2px rgba(63,125,217,0.40); user-select: none; pointer-events: none; }
 .footer-copy-strip { border-top: 1px solid var(--border); padding: 10px 28px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
 .footer-copy { font-size: 11px; color: var(--grey-400); }
 
@@ -479,14 +458,13 @@ tr.row-red .strikes .filled { color: var(--red-mid); }
 .section-divider span { font-size: 12px; font-weight: 600; color: var(--trst-blue-mid); white-space: nowrap; }
 
 @media (max-width: 1024px) { .summary { grid-template-columns: repeat(2,1fr); } .wrap { padding: 20px; } }
-@media (max-width: 640px) { .header { height: auto; padding: 14px 16px; } .header-trstype { display: none; } .summary { grid-template-columns: repeat(2,1fr); } .wrap { padding: 14px 16px; } }
+@media (max-width: 640px) { .header { height: auto; padding: 14px 16px; } .summary { grid-template-columns: repeat(2,1fr); } .wrap { padding: 14px 16px; } }
 </style>
 </head>
 <body>
 
 <!-- ============================================================ HEADER ============================================================ -->
 <header class="header">
-  <div class="header-trstype" aria-hidden="true">student safety palm vein biometric identity trst schools access presenca chamada frequencia colegio new way joao pessoa campina grande student safety palm vein</div>
   <div class="header-overlay" aria-hidden="true"></div>
   <div class="header-content">
     <div class="header-left">
@@ -636,9 +614,6 @@ tr.row-red .strikes .filled { color: var(--red-mid); }
     </div>
 
     <footer class="footer">
-      <div class="footer-trstype-band">
-        <div class="footer-trstype" aria-hidden="true">student safety palm vein biometric identity trst schools access presenca chamada frequencia colegio new way joao pessoa campina grande</div>
-      </div>
       <div class="footer-copy-strip">
         <div class="footer-copy">© 2026 TRST Innovations · Colégio New Way</div>
         <div class="footer-copy">Powered by TRST · palm vein biometrics · MVP v1 — apenas para validação interna</div>
