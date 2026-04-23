@@ -663,7 +663,10 @@ tr.row-red .strikes .filled { color: var(--red-mid); }
     </div>
 
     <div class="msg-section">
-      <h2>Pendentes de aprovação</h2>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px;flex-wrap:wrap">
+        <h2 style="margin:0">Pendentes de aprovação</h2>
+        <button id="approveAllBtn" class="btn btn-warning btn-sm" onclick="requestPinApprovalAll()">Aprovar e enviar todas</button>
+      </div>
       <div id="msgQueue"></div>
     </div>
 
@@ -956,6 +959,7 @@ tr.row-red .strikes .filled { color: var(--red-mid); }
       <div class="form-group">
         <label class="form-label">PIN</label>
         <input id="pinInput" type="password" class="form-input" maxlength="6" placeholder="Digite o PIN">
+        <div class="form-hint">Digite o codigo 1234 para essa demonstracao, a versao final sera um outro codigo.</div>
       </div>
     </div>
     <div class="modal-footer">
@@ -1050,6 +1054,7 @@ let currentDetailId = null;
 let currentUniformId = null;
 let currentUniformValue = 0;
 let pendingApprovalMessageId = null;
+let pinApprovalMode = 'single';
 let selectedManualStudentId = null;
 let messageQueue = [];
 let messageCounter = 1;
@@ -1366,6 +1371,12 @@ function renderMessages() {
   const sent = messageQueue.filter(m => m.status === 'sent');
   const queueRoot = document.getElementById('msgQueue');
   const sentRoot = document.getElementById('msgSent');
+  const approveAllBtn = document.getElementById('approveAllBtn');
+
+  if (approveAllBtn) {
+    approveAllBtn.disabled = pending.length === 0;
+    approveAllBtn.textContent = pending.length > 0 ? `Aprovar e enviar todas (${pending.length})` : 'Aprovar e enviar todas';
+  }
 
   if (queueRoot) {
     queueRoot.innerHTML = pending.length ? pending.map(m => `
@@ -1427,7 +1438,20 @@ function queueManualMessage() {
 }
 
 function requestPinApproval(messageId) {
+  pinApprovalMode = 'single';
   pendingApprovalMessageId = messageId;
+  document.getElementById('pinInput').value = '';
+  openModal('pinModal');
+}
+
+function requestPinApprovalAll() {
+  const pendingCount = messageQueue.filter(m => m.status === 'pending').length;
+  if (pendingCount === 0) {
+    showToast('Nao ha mensagens pendentes', 'warning');
+    return;
+  }
+  pinApprovalMode = 'all';
+  pendingApprovalMessageId = null;
   document.getElementById('pinInput').value = '';
   openModal('pinModal');
 }
@@ -1438,6 +1462,25 @@ function approveMessageWithPin() {
     showToast('PIN inválido', 'error');
     return;
   }
+
+  if (pinApprovalMode === 'all') {
+    const pending = messageQueue.filter(m => m.status === 'pending');
+    if (!pending.length) {
+      closeModal('pinModal');
+      return;
+    }
+    const sentAt = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+    pending.forEach(m => {
+      m.status = 'sent';
+      m.sentAt = sentAt;
+      addAuditEntry('config', {name: m.studentName, cls: students.find(s => s.id === m.studentId)?.cls || '-'}, `WhatsApp enviado em lote (${m.type === 'late' ? `atraso ${m.level}ª ocorrência` : 'uniforme'}) com aprovação por PIN`);
+    });
+    closeModal('pinModal');
+    renderMessages();
+    showToast(`${pending.length} mensagem(ns) aprovada(s) e enviada(s) em lote`, 'success');
+    return;
+  }
+
   const msg = messageQueue.find(m => m.id === pendingApprovalMessageId);
   if (!msg) {
     closeModal('pinModal');
