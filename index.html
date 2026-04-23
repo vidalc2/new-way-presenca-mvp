@@ -311,7 +311,29 @@ tr.row-red .strikes .filled { color: var(--red-mid); }
 .bio-dot { width: 7px; height: 7px; border-radius: 50%; }
 .bio-dot.ok { background: var(--success); }
 .bio-dot.pending { background: var(--grey-300); }
+.bio-dot.blocked { background: var(--critical); }
 .bio .pend-link { color: var(--trst-blue-mid); text-decoration: underline; font-weight: 500; cursor: pointer; }
+.bio-text-unauthorized { color: var(--critical); font-weight: 600; }
+.bio-enroll-btn {
+  border: 1px solid var(--trst-blue-mid);
+  background: var(--blue-soft);
+  color: var(--trst-blue-dark);
+  border-radius: 999px;
+  font-size: 12px;
+  padding: 2px 8px;
+  cursor: pointer;
+  font-family: inherit;
+}
+.bio-enroll-btn:hover { background: #dfe9fb; }
+.bio-consent-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--grey-500);
+  cursor: pointer;
+}
+.bio-consent-check input { cursor: pointer; }
 .kebab { width: 28px; height: 28px; border: 1px solid transparent; border-radius: 6px; background: transparent; cursor: pointer; color: var(--grey-400); display: inline-flex; align-items: center; justify-content: center; }
 .kebab:hover { background: var(--blue-soft); color: var(--trst-blue-dark); border-color: var(--border); }
 
@@ -417,6 +439,7 @@ tr.row-red .strikes .filled { color: var(--red-mid); }
 .audit-type.strike { background: var(--amber-soft); color: var(--amber); }
 .audit-type.config { background: var(--green-soft); color: var(--success); }
 .audit-type.kiosk  { background: #f0e8fe; color: #7c3aed; }
+.audit-type.biometric { background: #e8f0fe; color: #1a56db; }
 
 /* =============================================
    Modals
@@ -969,11 +992,11 @@ tr.row-red .strikes .filled { color: var(--red-mid); }
 <div class="overlay" id="pinModal">
   <div class="modal" style="max-width:420px">
     <div class="modal-head">
-      <h3>Aprovar envio para WhatsApp</h3>
+      <h3 id="pinModalTitle">Aprovar envio para WhatsApp</h3>
       <button class="modal-close" onclick="closeModal('pinModal')">×</button>
     </div>
     <div class="modal-body">
-      <div class="alert-warning">Confirme com PIN da Coordenação para evitar envio não intencional.</div>
+      <div class="alert-warning" id="pinModalAlert">Confirme com PIN da Coordenação para evitar envio não intencional.</div>
       <div class="form-group">
         <label class="form-label">PIN</label>
         <input id="pinInput" type="password" class="form-input" maxlength="6" placeholder="Digite o PIN">
@@ -982,7 +1005,33 @@ tr.row-red .strikes .filled { color: var(--red-mid); }
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal('pinModal')">Cancelar</button>
-      <button class="btn btn-primary" onclick="approveMessageWithPin()">Aprovar envio</button>
+      <button class="btn btn-primary" id="pinModalConfirmBtn" onclick="approveMessageWithPin()">Aprovar envio</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ MODAL: BIOMETRIC ENROLL ============================================================ -->
+<div class="overlay" id="bioEnrollModal">
+  <div class="modal" style="max-width:460px">
+    <div class="modal-head">
+      <h3 id="bioEnrollModalTitle">Selecionar terminal de biometria</h3>
+      <button class="modal-close" onclick="closeModal('bioEnrollModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div id="bioEnrollStudentInfo" style="margin-bottom:14px"></div>
+      <div class="form-group">
+        <label class="form-label">Terminal de cadastro</label>
+        <select id="bioTerminalSelect" class="form-input">
+          <option value="">Selecione um terminal</option>
+          <option value="Terminal A - Recepcao">Terminal A - Recepcao</option>
+          <option value="Terminal B - Coordenacao">Terminal B - Coordenacao</option>
+          <option value="Terminal C - Laboratorio">Terminal C - Laboratorio</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('bioEnrollModal')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveBiometricEnrollment()">Registrar palma</button>
     </div>
   </div>
 </div>
@@ -1032,18 +1081,18 @@ const INITIAL_STUDENTS = [
   {id:2, name:'Bruno Henrique Souza',    cls:'7A', strikes:1, bio:true,  entry:'07:38', status:'late',    edited:false, editedBy:null, editMotivo:null},
   {id:3, name:'Carla Mendonça Lima',     cls:'7B', strikes:0, bio:true,  entry:'07:22', status:'on-time', edited:false, editedBy:null, editMotivo:null},
   {id:4, name:'Diego Martins Costa',     cls:'7B', strikes:3, bio:true,  entry:'07:51', status:'late',    edited:false, editedBy:null, editMotivo:null},
-  {id:5, name:'Eduarda Oliveira Neto',   cls:'8A', strikes:0, bio:false, entry:null,    status:'absent',  edited:false, editedBy:null, editMotivo:null},
+  {id:5, name:'Eduarda Oliveira Neto',   cls:'8A', strikes:0, bio:false, bioConsent:true,  bioTerminal:null, entry:null,    status:'absent',  edited:false, editedBy:null, editMotivo:null},
   {id:6, name:'Felipe Araújo Santos',    cls:'8A', strikes:2, bio:true,  entry:'07:42', status:'late',    edited:false, editedBy:null, editMotivo:null},
   {id:7, name:'Gabriela Rocha Pereira',  cls:'8A', strikes:0, bio:true,  entry:'07:08', status:'on-time', edited:false, editedBy:null, editMotivo:null},
   {id:8, name:'Hugo Carvalho Pinto',     cls:'8B', strikes:1, bio:true,  entry:'07:41', status:'late',    edited:true,  editedBy:'Coordenacao', editMotivo:'Declaração médica'},
   {id:9, name:'Isabella Teixeira Alves', cls:'8B', strikes:0, bio:true,  entry:'07:17', status:'on-time', edited:false, editedBy:null, editMotivo:null},
-  {id:10,name:'João Pedro Melo',         cls:'8B', strikes:0, bio:false, entry:null,    status:'absent',  edited:false, editedBy:null, editMotivo:null},
+  {id:10,name:'João Pedro Melo',         cls:'8B', strikes:0, bio:false, bioConsent:false, bioTerminal:null, entry:null,    status:'absent',  edited:false, editedBy:null, editMotivo:null},
   {id:11,name:'Kamila Nascimento Ramos', cls:'9A', strikes:0, bio:true,  entry:'07:29', status:'on-time', edited:false, editedBy:null, editMotivo:null},
   {id:12,name:'Lucas Andrade Silva',     cls:'9A', strikes:3, bio:true,  entry:'07:55', status:'late',    edited:false, editedBy:null, editMotivo:null},
   {id:13,name:'Mariana Costa Batista',   cls:'9A', strikes:1, bio:true,  entry:'07:37', status:'late',    edited:false, editedBy:null, editMotivo:null},
   {id:14,name:'Nicolas Ferraz Gomes',    cls:'9A', strikes:0, bio:true,  entry:'07:19', status:'on-time', edited:false, editedBy:null, editMotivo:null},
   {id:15,name:'Olivia Soares Cardoso',   cls:'9B', strikes:2, bio:true,  entry:'07:44', status:'late',    edited:false, editedBy:null, editMotivo:null},
-  {id:16,name:'Pedro Augusto Lima',      cls:'9B', strikes:0, bio:false, entry:null,    status:'absent',  edited:false, editedBy:null, editMotivo:null},
+  {id:16,name:'Pedro Augusto Lima',      cls:'9B', strikes:0, bio:false, bioConsent:true,  bioTerminal:null, entry:null,    status:'absent',  edited:false, editedBy:null, editMotivo:null},
   {id:17,name:'Quintão Rafael Dias',     cls:'7A', strikes:0, bio:true,  entry:'07:25', status:'on-time', edited:false, editedBy:null, editMotivo:null},
   {id:18,name:'Rebeca Matos Cruz',       cls:'7B', strikes:1, bio:true,  entry:'07:39', status:'late',    edited:false, editedBy:null, editMotivo:null},
   {id:19,name:'Samuel Torres Vieira',    cls:'9B', strikes:0, bio:true,  entry:'07:11', status:'on-time', edited:false, editedBy:null, editMotivo:null},
@@ -1074,6 +1123,9 @@ let currentUniformId = null;
 let currentUniformValue = 0;
 let pendingApprovalMessageId = null;
 let pinApprovalMode = 'single';
+let pendingBiometricConsentId = null;
+let pendingBiometricConsentCheckbox = null;
+let currentBioEnrollId = null;
 let selectedManualStudentId = null;
 let messageQueue = [];
 let messageCounter = 1;
@@ -1108,6 +1160,23 @@ const I18N = {
     th_entry: 'Entrada',
     th_delays: 'Atrasos (advertências)',
     th_bio: 'Biometria',
+    bio_registered: 'Registrada',
+    bio_pending: 'Pendente',
+    bio_unauthorized: 'Nao autorizada',
+    bio_authorize: 'Autorizar',
+    bio_enroll_palm: '🖐️ Cadastrar palma',
+    bio_consent_statement: 'Atencao, confirmo que o aluno {student} tem autorizacao dos responsavel para a utilizacao da biometria.',
+    pin_send_title: 'Aprovar envio para WhatsApp',
+    pin_send_alert: 'Confirme com PIN da Coordenação para evitar envio não intencional.',
+    pin_send_confirm: 'Aprovar envio',
+    pin_consent_title: 'Confirmar autorizacao biometrica',
+    pin_consent_confirm: 'Confirmar autorizacao',
+    terminal_modal_title: 'Selecionar terminal de biometria',
+    terminal_select_placeholder: 'Selecione um terminal',
+    terminal_register_palm: 'Registrar palma',
+    terminal_registered_toast: 'Biometria registrada com sucesso',
+    consent_logged_toast: 'Autorizacao biometrica registrada em auditoria',
+    select_terminal_toast: 'Selecione um terminal para continuar',
     th_uniform: 'Uniforme',
     legend_ontime: 'Presente e pontual',
     legend_late: 'Atrasado',
@@ -1181,6 +1250,23 @@ const I18N = {
     th_entry: 'Entry',
     th_delays: 'Late (warnings)',
     th_bio: 'Biometric',
+    bio_registered: 'Registered',
+    bio_pending: 'Pending',
+    bio_unauthorized: 'Not authorized',
+    bio_authorize: 'Authorize',
+    bio_enroll_palm: '🖐️ Enroll palm',
+    bio_consent_statement: 'Attention, I confirm that student {student} has guardian authorization for biometric use.',
+    pin_send_title: 'Approve WhatsApp send',
+    pin_send_alert: 'Confirm with Coordination PIN to avoid unintended sending.',
+    pin_send_confirm: 'Approve send',
+    pin_consent_title: 'Confirm biometric authorization',
+    pin_consent_confirm: 'Confirm authorization',
+    terminal_modal_title: 'Select biometric terminal',
+    terminal_select_placeholder: 'Select a terminal',
+    terminal_register_palm: 'Register palm',
+    terminal_registered_toast: 'Biometric successfully registered',
+    consent_logged_toast: 'Biometric authorization logged to audit',
+    select_terminal_toast: 'Select a terminal to continue',
     th_uniform: 'Uniform',
     legend_ontime: 'Present and on time',
     legend_late: 'Late',
@@ -1457,9 +1543,14 @@ function renderTable() {
     }
     if (s.edited) entryCell += ` <span class="edited-flag" title="Editado by ${s.editedBy}">${t('edited')}</span>`;
 
-    const bioCell = s.bio
-      ? `<span class="bio"><span class="bio-dot ok"></span>${t('registered')}</span>`
-      : `<span class="bio"><span class="bio-dot pending"></span><span class="pend-link" onclick="openDetail(${s.id})">${t('pending')}</span></span>`;
+    let bioCell = '';
+    if (s.bio) {
+      bioCell = `<span class="bio"><span class="bio-dot ok"></span>${t('bio_registered')}</span>`;
+    } else if (s.bioConsent) {
+      bioCell = `<span class="bio"><span class="bio-dot pending"></span><span>${t('bio_pending')}</span><button class="bio-enroll-btn" onclick="openBiometricEnrollment(${s.id})">${t('bio_enroll_palm')}</button></span>`;
+    } else {
+      bioCell = `<span class="bio"><span class="bio-dot blocked"></span><span class="bio-text-unauthorized">${t('bio_unauthorized')}</span><label class="bio-consent-check"><input type="checkbox" onchange="requestBiometricAuthorization(event, ${s.id}, this)"><span>${t('bio_authorize')}</span></label></span>`;
+    }
 
     const uniformCell = `
       <div class="strike-cell">
@@ -1548,6 +1639,8 @@ function initializeStudentExtensions() {
   students.forEach(s => {
     if (typeof s.uniformFlags !== 'number') s.uniformFlags = 0;
     if (typeof s.lateNoticeCount !== 'number') s.lateNoticeCount = Math.min(Math.max(s.strikes || 1, 1), 3);
+    if (typeof s.bioConsent !== 'boolean') s.bioConsent = !!s.bio;
+    if (typeof s.bioTerminal === 'undefined') s.bioTerminal = s.bio ? 'Terminal A - Recepcao' : null;
   });
 }
 
@@ -1681,6 +1774,9 @@ function queueManualMessage() {
 
 function requestPinApproval(messageId) {
   pinApprovalMode = 'single';
+  pendingBiometricConsentId = null;
+  pendingBiometricConsentCheckbox = null;
+  configurePinModal();
   pendingApprovalMessageId = messageId;
   document.getElementById('pinInput').value = '';
   openModal('pinModal');
@@ -1694,14 +1790,65 @@ function requestPinApprovalAll() {
   }
   pinApprovalMode = 'all';
   pendingApprovalMessageId = null;
+  pendingBiometricConsentId = null;
+  pendingBiometricConsentCheckbox = null;
+  configurePinModal();
   document.getElementById('pinInput').value = '';
   openModal('pinModal');
+}
+
+function requestBiometricAuthorization(event, id, checkbox) {
+  if (event) event.preventDefault();
+  if (checkbox) checkbox.checked = false;
+  const student = students.find(x => x.id === id);
+  if (!student) return;
+  pinApprovalMode = 'consent';
+  pendingApprovalMessageId = null;
+  pendingBiometricConsentId = id;
+  pendingBiometricConsentCheckbox = checkbox || null;
+  configurePinModal(student);
+  document.getElementById('pinInput').value = '';
+  openModal('pinModal');
+}
+
+function configurePinModal(student = null) {
+  const title = document.getElementById('pinModalTitle');
+  const alert = document.getElementById('pinModalAlert');
+  const confirmBtn = document.getElementById('pinModalConfirmBtn');
+  if (pinApprovalMode === 'consent' && student) {
+    title.textContent = t('pin_consent_title');
+    alert.textContent = t('bio_consent_statement', {student: student.name});
+    confirmBtn.textContent = t('pin_consent_confirm');
+    return;
+  }
+  title.textContent = t('pin_send_title');
+  alert.textContent = t('pin_send_alert');
+  confirmBtn.textContent = t('pin_send_confirm');
 }
 
 function approveMessageWithPin() {
   const pin = document.getElementById('pinInput').value.trim();
   if (pin !== COORD_APPROVAL_PIN) {
     showToast('PIN inválido', 'error');
+    return;
+  }
+
+  if (pinApprovalMode === 'consent') {
+    const student = students.find(x => x.id === pendingBiometricConsentId);
+    if (!student) {
+      closeModal('pinModal');
+      return;
+    }
+    student.bioConsent = true;
+    addAuditEntry('biometric', student, 'Autorizacao biometrica confirmada com PIN pela equipe escolar');
+    closeModal('pinModal');
+    if (pendingBiometricConsentCheckbox) pendingBiometricConsentCheckbox.checked = true;
+    pendingBiometricConsentId = null;
+    pendingBiometricConsentCheckbox = null;
+    pinApprovalMode = 'single';
+    configurePinModal();
+    renderTable();
+    showToast(t('consent_logged_toast'), 'success');
     return;
   }
 
@@ -1720,6 +1867,8 @@ function approveMessageWithPin() {
     closeModal('pinModal');
     renderMessages();
     showToast(`${pending.length} mensagem(ns) aprovada(s) e enviada(s) em lote`, 'success');
+    pinApprovalMode = 'single';
+    configurePinModal();
     return;
   }
 
@@ -1734,11 +1883,47 @@ function approveMessageWithPin() {
   addAuditEntry('config', {name: msg.studentName, cls: students.find(s => s.id === msg.studentId)?.cls || '-'}, `WhatsApp enviado (${msg.type === 'late' ? `atraso ${msg.level}ª ocorrência` : 'uniforme'}) com aprovação por PIN`);
   renderMessages();
   showToast('Mensagem aprovada e enviada via WhatsApp (simulação)', 'success');
+  pinApprovalMode = 'single';
+  configurePinModal();
 }
 
 function discardMessage(messageId) {
   messageQueue = messageQueue.filter(m => m.id !== messageId);
   renderMessages();
+}
+
+function openBiometricEnrollment(id) {
+  const student = students.find(x => x.id === id);
+  if (!student || !student.bioConsent) {
+    showToast(t('bio_unauthorized'), 'error');
+    return;
+  }
+  currentBioEnrollId = id;
+  document.getElementById('bioEnrollModalTitle').textContent = t('terminal_modal_title');
+  document.getElementById('bioEnrollStudentInfo').innerHTML = `
+    <div class="info-row"><span class="info-label">Aluno</span><span class="info-val">${student.name}</span></div>
+    <div class="info-row"><span class="info-label">Turma</span><span class="info-val">${CLASS_LABELS[student.cls]}</span></div>`;
+  document.getElementById('bioTerminalSelect').value = '';
+  document.getElementById('bioTerminalSelect').options[0].textContent = t('terminal_select_placeholder');
+  document.querySelector('#bioEnrollModal .modal-footer .btn-primary').textContent = t('terminal_register_palm');
+  openModal('bioEnrollModal');
+}
+
+function saveBiometricEnrollment() {
+  const student = students.find(x => x.id === currentBioEnrollId);
+  const terminal = document.getElementById('bioTerminalSelect').value;
+  if (!student) return;
+  if (!terminal) {
+    showToast(t('select_terminal_toast'), 'warning');
+    return;
+  }
+  student.bio = true;
+  student.bioConsent = true;
+  student.bioTerminal = terminal;
+  addAuditEntry('biometric', student, `Biometria cadastrada no ${terminal}`);
+  closeModal('bioEnrollModal');
+  renderTable();
+  showToast(t('terminal_registered_toast'), 'success');
 }
 
 // ============================================================
@@ -1756,11 +1941,17 @@ function openDetail(id) {
   document.getElementById('detailModalTitle').textContent = s.name;
   const starsTotal = config.strikeLimit;
   const stars = Array.from({length:starsTotal}, (_,i) => `<span style="font-size:20px;color:${i < s.strikes ? 'var(--amber-mid)' : 'var(--grey-300)'};">${i < s.strikes ? '★' : '☆'}</span>`).join('');
+  const biometricLabel = s.bio
+    ? `✅ ${t('bio_registered')}`
+    : s.bioConsent
+      ? `⚠️ ${t('bio_pending')}`
+      : `⛔ ${t('bio_unauthorized')}`;
   document.getElementById('detailModalBody').innerHTML = `
     <div class="info-row"><span class="info-label">Turma</span><span class="info-val">${CLASS_LABELS[s.cls]}</span></div>
     <div class="info-row"><span class="info-label">Status hoje</span><span class="info-val">${s.status === 'on-time' ? '✅ Pontual' : s.status === 'late' ? '⏰ Atrasado' : '❌ Ausente'}</span></div>
     <div class="info-row"><span class="info-label">Entrada</span><span class="info-val">${s.entry || '—'}</span></div>
-    <div class="info-row"><span class="info-label">Biometria</span><span class="info-val">${s.bio ? '✅ Registrada' : '⚠️ Pendente'}</span></div>
+    <div class="info-row"><span class="info-label">Biometria</span><span class="info-val">${biometricLabel}</span></div>
+    ${s.bioTerminal ? `<div class="info-row"><span class="info-label">Terminal</span><span class="info-val">${s.bioTerminal}</span></div>` : ''}
     <div class="info-row"><span class="info-label">Uniforme</span><span class="info-val">${s.uniformFlags}/3 marcação(ões)</span></div>
     <div class="info-row"><span class="info-label">Greves</span><span class="info-val">${stars}</span></div>
     ${s.edited ? `<div class="info-row"><span class="info-label">Editado por</span><span class="info-val">${s.editedBy} — ${s.editMotivo}</span></div>` : ''}
