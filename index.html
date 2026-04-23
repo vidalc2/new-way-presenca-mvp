@@ -1227,7 +1227,7 @@ function renderTable() {
     const strikeCell = `
       <div class="strike-cell">
         <span class="strikes">${stars}</span>
-        ${s.strikes > 0 ? `<button class="strike-cta" onclick="openStrike(${s.id})">Gerenciar</button>` : ''}
+        <button class="strike-cta" onclick="openStrike(${s.id})">${s.strikes > 0 ? 'Gerenciar' : '+ Advertência'}</button>
       </div>`;
 
     return `
