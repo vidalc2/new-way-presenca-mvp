@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Presença MVP — New Way | TRST</title>
+<title>Presença MVP v2 — New Way | TRST</title>
 <!-- Space Grotesk via Google Fonts — works on GitHub Pages; degrades to system-ui offline -->
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -142,6 +142,25 @@ button { font-family: inherit; }
 .tab-btn .badge.red { background: var(--critical); }
 .tab-pane { display: none; }
 .tab-pane.active { display: block; }
+
+/* =============================================
+  Comunicacoes
+============================================= */
+.msg-section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 14px; }
+.msg-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px,1fr)); gap: 10px; }
+.msg-card { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 12px; background: var(--grey-50); }
+.msg-card h4 { font-size: 12px; margin-bottom: 6px; }
+.msg-card p { font-size: 12px; color: var(--grey-500); }
+.msg-queue-item { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 12px; background: var(--surface); margin-bottom: 8px; }
+.msg-meta { font-size: 11px; color: var(--grey-400); margin-bottom: 6px; }
+.msg-actions { display: flex; gap: 8px; margin-top: 8px; }
+
+/* =============================================
+  Uniforme indicator
+============================================= */
+.uniform-circles { display: inline-flex; gap: 4px; font-size: 14px; line-height: 1; }
+.uniform-circles .on { color: #c93d32; }
+.uniform-circles .off { color: var(--grey-300); }
 
 /* =============================================
    Sticky controls bar
@@ -523,6 +542,10 @@ tr.row-red .strikes .filled { color: var(--red-mid); }
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
     Modo Quiosque
   </button>
+  <button class="tab-btn" id="mensagensTab" data-tab="mensagens" onclick="switchTab('mensagens',this)" style="display:none">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    Comunicações
+  </button>
   <button class="tab-btn" id="configTab" data-tab="configuracoes" onclick="switchTab('configuracoes',this)" style="display:none">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
     Configurações
@@ -602,6 +625,7 @@ tr.row-red .strikes .filled { color: var(--red-mid); }
             <th>Entrada</th>
             <th>Atrasos (advertências)</th>
             <th>Biometria</th>
+            <th>Uniforme</th>
             <th></th>
           </tr>
         </thead>
@@ -619,9 +643,34 @@ tr.row-red .strikes .filled { color: var(--red-mid); }
     <footer class="footer">
       <div class="footer-copy-strip">
         <div class="footer-copy">© 2026 TRST Innovations · Colégio New Way</div>
-        <div class="footer-copy">Powered by TRST · palm vein biometrics · MVP v1 — apenas para validação interna</div>
+        <div class="footer-copy">Powered by TRST · palm vein biometrics · MVP v2 — apenas para validação interna</div>
       </div>
     </footer>
+  </div>
+</div>
+
+<!-- ============================================================ TAB: COMUNICACOES ============================================================ -->
+<div class="tab-pane" id="tab-mensagens">
+  <div class="wrap">
+    <div class="page-head">
+      <div><h1>Comunicações WhatsApp</h1><div class="subtitle">Mensagens pré-definidas com revisão da Coordenação e aprovação por PIN</div></div>
+      <div><button class="btn btn-primary" onclick="openMessageModal()">Adicionar mensagem manual</button></div>
+    </div>
+
+    <div class="msg-section">
+      <h2>Modelos pré-definidos</h2>
+      <div class="msg-grid" id="msgTemplates"></div>
+    </div>
+
+    <div class="msg-section">
+      <h2>Pendentes de aprovação</h2>
+      <div id="msgQueue"></div>
+    </div>
+
+    <div class="msg-section">
+      <h2>Enviadas</h2>
+      <div id="msgSent"></div>
+    </div>
   </div>
 </div>
 
@@ -856,6 +905,93 @@ tr.row-red .strikes .filled { color: var(--red-mid); }
   </div>
 </div>
 
+<!-- ============================================================ MODAL: MESSAGE MANUAL ============================================================ -->
+<div class="overlay" id="messageModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Adicionar mensagem manual</h3>
+      <button class="modal-close" onclick="closeModal('messageModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Aluno</label>
+        <select id="msgStudentSelect" class="form-input" onchange="updateManualMessagePreview()"></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tipo</label>
+        <select id="msgTypeSelect" class="form-input" onchange="updateManualMessagePreview()">
+          <option value="late">Atraso</option>
+          <option value="uniform">Uniforme</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Ocorrência</label>
+        <select id="msgLevelSelect" class="form-input" onchange="updateManualMessagePreview()">
+          <option value="1">1ª ocorrência</option>
+          <option value="2">2ª ocorrência</option>
+          <option value="3">3ª ocorrência</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Pré-visualização</label>
+        <textarea id="msgPreview" class="form-input" rows="5" readonly></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('messageModal')">Cancelar</button>
+      <button class="btn btn-primary" onclick="queueManualMessage()">Adicionar para revisão</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ MODAL: PIN APPROVAL ============================================================ -->
+<div class="overlay" id="pinModal">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-head">
+      <h3>Aprovar envio para WhatsApp</h3>
+      <button class="modal-close" onclick="closeModal('pinModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="alert-warning">Confirme com PIN da Coordenação para evitar envio não intencional.</div>
+      <div class="form-group">
+        <label class="form-label">PIN</label>
+        <input id="pinInput" type="password" class="form-input" maxlength="6" placeholder="Digite o PIN">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('pinModal')">Cancelar</button>
+      <button class="btn btn-primary" onclick="approveMessageWithPin()">Aprovar envio</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ MODAL: UNIFORME ============================================================ -->
+<div class="overlay" id="uniformModal">
+  <div class="modal" style="max-width:460px">
+    <div class="modal-head">
+      <h3 id="uniformModalTitle">Gerenciar uniforme</h3>
+      <button class="modal-close" onclick="closeModal('uniformModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div id="uniformStudentInfo" style="margin-bottom:14px"></div>
+      <div class="form-label" style="margin-bottom:8px">Advertências de uniforme (círculos)</div>
+      <div id="uniformDisplay" style="font-size:28px;letter-spacing:4px;margin-bottom:12px"></div>
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <button class="btn btn-warning btn-sm" onclick="addUniformFlag()">+ Adicionar</button>
+        <button class="btn btn-ghost btn-sm" onclick="removeUniformFlag()">− Remover</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Motivo</label>
+        <textarea id="uniformNotes" class="form-input" rows="2" placeholder="Observação sobre uniforme"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('uniformModal')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveUniformFlag()">Salvar</button>
+    </div>
+  </div>
+</div>
+
 <!-- Toast -->
 <div id="toast"></div>
 
@@ -900,20 +1036,36 @@ let auditLog = [
 ];
 let motivos = ['Declaração médica','Transporte público','Problema familiar','Emergência','Outro'];
 let config = { cutoff: '07:35', strikeLimit: 3, campus: 'JPA' };
+const COORD_APPROVAL_PIN = '1234';
+const MESSAGE_TEMPLATES = {
+  late1: 'Prezados responsáveis, informamos que hoje foi registrado 1º atraso do(a) aluno(a) {student}. Pedimos atenção ao horário de entrada para evitar prejuízo pedagógico.',
+  late2: 'Prezados responsáveis, hoje identificamos o 2º atraso do(a) aluno(a) {student}. Solicitamos alinhamento da rotina para garantir pontualidade.',
+  late3: 'Prezados responsáveis, foi registrado o 3º atraso do(a) aluno(a) {student}. Favor entrar em contato com a Coordenação para alinhamento imediato.',
+  uniform: 'Prezados responsáveis, informamos que hoje o(a) aluno(a) {student} nao veio com o uniforme padrao exigido pela escola.'
+};
 let currentMode = 'admin';
 let currentEditId = null;
 let currentStrikeId = null;
 let currentDetailId = null;
+let currentUniformId = null;
+let currentUniformValue = 0;
+let pendingApprovalMessageId = null;
 let selectedManualStudentId = null;
+let messageQueue = [];
+let messageCounter = 1;
 
 // ============================================================
 //   INIT
 // ============================================================
 document.addEventListener('DOMContentLoaded', () => {
+  initializeStudentExtensions();
   document.getElementById('dateFilter').value = TODAY_STR;
+  seedAutoLateMessages();
   renderTable();
   renderKPIs();
   renderAtrasos();
+  renderMessages();
+  renderMessageTemplates();
   renderAudit();
   renderMotivos();
   renderAddMotivos();
@@ -959,10 +1111,12 @@ function updateModeUI() {
   document.getElementById('kioskModeBtn').classList.toggle('active', isKiosk);
   document.getElementById('configTab').style.display = isAdmin ? '' : 'none';
   document.getElementById('auditoriaTab').style.display = isAdmin ? '' : 'none';
+  document.getElementById('mensagensTab').style.display = isAdmin ? '' : 'none';
   document.getElementById('addManualBtn').style.display = isAdmin ? '' : 'none';
   document.getElementById('policyEditLink').style.display = isAdmin ? '' : 'none';
   document.getElementById('kioskTab').style.display = isKiosk ? '' : 'none';
   if (isKiosk) switchTab('kiosk', document.querySelector('[data-tab=kiosk]'));
+  else if (document.getElementById('tab-mensagens').classList.contains('active') && !isAdmin) switchTab('chamada', document.querySelector('[data-tab=chamada]'));
   else if (document.getElementById('tab-kiosk').classList.contains('active')) switchTab('chamada', document.querySelector('[data-tab=chamada]'));
 }
 function toggleKioskTab(btn) {
@@ -1034,7 +1188,7 @@ function renderTable() {
 
   const tbody = document.getElementById('tableBody');
   if (filtered.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="icon">🔍</div><p>Nenhum aluno encontrado com estes filtros</p></div></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="icon">🔍</div><p>Nenhum aluno encontrado com estes filtros</p></div></td></tr>';
     return;
   }
 
@@ -1060,6 +1214,16 @@ function renderTable() {
       ? `<span class="bio"><span class="bio-dot ok"></span>Registrada</span>`
       : `<span class="bio"><span class="bio-dot pending"></span><span class="pend-link" onclick="openDetail(${s.id})">Pendente</span></span>`;
 
+    const uniformCell = `
+      <div class="strike-cell">
+        <span class="uniform-circles">
+          <span class="${s.uniformFlags >= 1 ? 'on' : 'off'}">●</span>
+          <span class="${s.uniformFlags >= 2 ? 'on' : 'off'}">●</span>
+          <span class="${s.uniformFlags >= 3 ? 'on' : 'off'}">●</span>
+        </span>
+        <button class="strike-cta" onclick="openUniform(${s.id})">Gerenciar</button>
+      </div>`;
+
     const strikeCell = `
       <div class="strike-cell">
         <span class="strikes">${stars}</span>
@@ -1075,6 +1239,7 @@ function renderTable() {
         <td data-label="Entrada">${entryCell}</td>
         <td data-label="Atrasos">${strikeCell}</td>
         <td data-label="Biometria">${bioCell}</td>
+        <td data-label="Uniforme">${uniformCell}</td>
         <td>
           <button class="kebab" onclick="openDetail(${s.id})" title="Detalhes / Editar">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
@@ -1130,6 +1295,168 @@ function notifyParent(id) {
 }
 
 // ============================================================
+//   COMUNICACOES (MVP V2)
+// ============================================================
+function initializeStudentExtensions() {
+  students.forEach(s => {
+    if (typeof s.uniformFlags !== 'number') s.uniformFlags = 0;
+    if (typeof s.lateNoticeCount !== 'number') s.lateNoticeCount = Math.min(Math.max(s.strikes || 1, 1), 3);
+  });
+}
+
+function formatMessage(template, studentName) {
+  return template.replace('{student}', studentName);
+}
+
+function getLateMessageLevel(s) {
+  return Math.min(Math.max(s.strikes || 1, 1), 3);
+}
+
+function getTemplateText(type, level, studentName) {
+  if (type === 'uniform') return formatMessage(MESSAGE_TEMPLATES.uniform, studentName);
+  const safeLevel = Math.min(Math.max(level || 1, 1), 3);
+  return formatMessage(MESSAGE_TEMPLATES[`late${safeLevel}`], studentName);
+}
+
+function buildMessageKey(type, studentId, level) {
+  return `${type}:${studentId}:${level}`;
+}
+
+function queueMessage(studentId, type, level, origin, notes = '') {
+  const student = students.find(x => x.id === studentId);
+  if (!student) return;
+  const safeLevel = type === 'uniform' ? 1 : Math.min(Math.max(level || 1, 1), 3);
+  const key = buildMessageKey(type, studentId, safeLevel);
+  if (origin === 'auto' && messageQueue.some(m => m.key === key)) return;
+  const text = getTemplateText(type, safeLevel, student.name);
+  messageQueue.unshift({
+    id: messageCounter++,
+    key,
+    studentId,
+    studentName: student.name,
+    type,
+    level: safeLevel,
+    text,
+    origin,
+    notes,
+    status: 'pending',
+    createdAt: new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'})
+  });
+}
+
+function seedAutoLateMessages() {
+  students
+    .filter(s => s.status === 'late' && s.bio)
+    .forEach(s => queueMessage(s.id, 'late', getLateMessageLevel(s), 'auto'));
+}
+
+function renderMessageTemplates() {
+  const root = document.getElementById('msgTemplates');
+  if (!root) return;
+  root.innerHTML = `
+    <div class="msg-card"><h4>Atraso — 1ª ocorrência</h4><p>${MESSAGE_TEMPLATES.late1}</p></div>
+    <div class="msg-card"><h4>Atraso — 2ª ocorrência</h4><p>${MESSAGE_TEMPLATES.late2}</p></div>
+    <div class="msg-card"><h4>Atraso — 3ª ocorrência</h4><p>${MESSAGE_TEMPLATES.late3}</p></div>
+    <div class="msg-card"><h4>Violação de uniforme</h4><p>${MESSAGE_TEMPLATES.uniform}</p></div>
+  `;
+}
+
+function renderMessages() {
+  const pending = messageQueue.filter(m => m.status === 'pending');
+  const sent = messageQueue.filter(m => m.status === 'sent');
+  const queueRoot = document.getElementById('msgQueue');
+  const sentRoot = document.getElementById('msgSent');
+
+  if (queueRoot) {
+    queueRoot.innerHTML = pending.length ? pending.map(m => `
+      <div class="msg-queue-item">
+        <div class="msg-meta">${m.type === 'late' ? `Atraso · ${m.level}ª ocorrência` : 'Uniforme'} · ${m.origin === 'auto' ? 'automático' : 'manual'} · ${m.createdAt}</div>
+        <div><strong>${m.studentName}</strong></div>
+        <div style="font-size:13px;color:var(--grey-600);margin-top:6px">${m.text}</div>
+        ${m.notes ? `<div style="font-size:12px;color:var(--grey-400);margin-top:6px">Obs: ${m.notes}</div>` : ''}
+        <div class="msg-actions">
+          <button class="btn btn-primary btn-sm" onclick="requestPinApproval(${m.id})">Aprovar + enviar WhatsApp</button>
+          <button class="btn btn-ghost btn-sm" onclick="discardMessage(${m.id})">Descartar</button>
+        </div>
+      </div>
+    `).join('') : '<div class="empty-state"><p>Sem mensagens pendentes para revisão.</p></div>';
+  }
+
+  if (sentRoot) {
+    sentRoot.innerHTML = sent.length ? sent.map(m => `
+      <div class="msg-queue-item" style="background:var(--grey-50)">
+        <div class="msg-meta">Enviada · ${m.sentAt}</div>
+        <div><strong>${m.studentName}</strong></div>
+        <div style="font-size:13px;color:var(--grey-600);margin-top:6px">${m.text}</div>
+      </div>
+    `).join('') : '<div class="empty-state"><p>Nenhuma mensagem enviada ainda.</p></div>';
+  }
+}
+
+function openMessageModal() {
+  if (currentMode !== 'admin') {
+    showToast('Apenas Coordenacao pode criar mensagens', 'error');
+    return;
+  }
+  const sel = document.getElementById('msgStudentSelect');
+  sel.innerHTML = students.map(s => `<option value="${s.id}">${s.name} · ${CLASS_LABELS[s.cls]}</option>`).join('');
+  document.getElementById('msgTypeSelect').value = 'late';
+  document.getElementById('msgLevelSelect').value = '1';
+  updateManualMessagePreview();
+  openModal('messageModal');
+}
+
+function updateManualMessagePreview() {
+  const studentId = parseInt(document.getElementById('msgStudentSelect').value, 10);
+  const type = document.getElementById('msgTypeSelect').value;
+  const level = parseInt(document.getElementById('msgLevelSelect').value, 10);
+  const student = students.find(s => s.id === studentId);
+  if (!student) return;
+  const effectiveLevel = type === 'uniform' ? 1 : level;
+  document.getElementById('msgPreview').value = getTemplateText(type, effectiveLevel, student.name);
+}
+
+function queueManualMessage() {
+  const studentId = parseInt(document.getElementById('msgStudentSelect').value, 10);
+  const type = document.getElementById('msgTypeSelect').value;
+  const level = parseInt(document.getElementById('msgLevelSelect').value, 10);
+  queueMessage(studentId, type, type === 'uniform' ? 1 : level, 'manual');
+  closeModal('messageModal');
+  renderMessages();
+  showToast('Mensagem adicionada para revisão', 'success');
+}
+
+function requestPinApproval(messageId) {
+  pendingApprovalMessageId = messageId;
+  document.getElementById('pinInput').value = '';
+  openModal('pinModal');
+}
+
+function approveMessageWithPin() {
+  const pin = document.getElementById('pinInput').value.trim();
+  if (pin !== COORD_APPROVAL_PIN) {
+    showToast('PIN inválido', 'error');
+    return;
+  }
+  const msg = messageQueue.find(m => m.id === pendingApprovalMessageId);
+  if (!msg) {
+    closeModal('pinModal');
+    return;
+  }
+  msg.status = 'sent';
+  msg.sentAt = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+  closeModal('pinModal');
+  addAuditEntry('config', {name: msg.studentName, cls: students.find(s => s.id === msg.studentId)?.cls || '-'}, `WhatsApp enviado (${msg.type === 'late' ? `atraso ${msg.level}ª ocorrência` : 'uniforme'}) com aprovação por PIN`);
+  renderMessages();
+  showToast('Mensagem aprovada e enviada via WhatsApp (simulação)', 'success');
+}
+
+function discardMessage(messageId) {
+  messageQueue = messageQueue.filter(m => m.id !== messageId);
+  renderMessages();
+}
+
+// ============================================================
 //   MODALS
 // ============================================================
 function openModal(id) { document.getElementById(id).classList.add('open'); }
@@ -1149,6 +1476,7 @@ function openDetail(id) {
     <div class="info-row"><span class="info-label">Status hoje</span><span class="info-val">${s.status === 'on-time' ? '✅ Pontual' : s.status === 'late' ? '⏰ Atrasado' : '❌ Ausente'}</span></div>
     <div class="info-row"><span class="info-label">Entrada</span><span class="info-val">${s.entry || '—'}</span></div>
     <div class="info-row"><span class="info-label">Biometria</span><span class="info-val">${s.bio ? '✅ Registrada' : '⚠️ Pendente'}</span></div>
+    <div class="info-row"><span class="info-label">Uniforme</span><span class="info-val">${s.uniformFlags}/3 marcação(ões)</span></div>
     <div class="info-row"><span class="info-label">Greves</span><span class="info-val">${stars}</span></div>
     ${s.edited ? `<div class="info-row"><span class="info-label">Editado por</span><span class="info-val">${s.editedBy} — ${s.editMotivo}</span></div>` : ''}
     <div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--grey-100)">
@@ -1194,11 +1522,13 @@ function saveEdit() {
   const [ch,cm] = config.cutoff.split(':');
   const late = (parseInt(h)*60+parseInt(m)) > (parseInt(ch)*60+parseInt(cm));
   s.status = late ? 'late' : 'on-time';
+  if (late && s.bio) queueMessage(s.id, 'late', getLateMessageLevel(s), 'auto', 'Gerado após edição de horário');
   addAuditEntry('edit', s, `Entrada editada: ${oldTime} → ${newTime} | Motivo: ${motivo}${notes ? ' | Obs: '+notes : ''}`);
   closeModal('editModal');
   renderTable();
   renderKPIs();
   renderAtrasos();
+  renderMessages();
   showToast('Entrada editada e auditada ✓', 'success');
 }
 
@@ -1240,12 +1570,58 @@ function saveManual() {
   const [h,m] = newTime.split(':');
   const [ch,cm] = config.cutoff.split(':');
   s.status = (parseInt(h)*60+parseInt(m)) > (parseInt(ch)*60+parseInt(cm)) ? 'late' : 'on-time';
+  if (s.status === 'late' && s.bio) queueMessage(s.id, 'late', getLateMessageLevel(s), 'auto', 'Gerado por check-in manual');
   addAuditEntry('kiosk', s, `Check-in manual: ${newTime} | Motivo: ${motivo} | Por: ${currentMode === 'admin' ? 'Coordenacao' : 'Modo Quiosque'}`);
   closeModal('addModal');
   renderTable();
   renderKPIs();
   renderAtrasos();
+  renderMessages();
   showToast(`Check-in manual de ${s.name} registrado ✓`, 'success');
+}
+
+function openUniform(id) {
+  const s = students.find(x => x.id === id);
+  currentUniformId = id;
+  currentUniformValue = s.uniformFlags || 0;
+  document.getElementById('uniformModalTitle').textContent = `Gerenciar uniforme — ${s.name}`;
+  document.getElementById('uniformNotes').value = '';
+  document.getElementById('uniformStudentInfo').innerHTML = `
+    <div class="info-row"><span class="info-label">Turma</span><span class="info-val">${CLASS_LABELS[s.cls]}</span></div>
+    <div class="info-row"><span class="info-label">Status</span><span class="info-val">${s.status === 'absent' ? 'Ausente' : (s.status === 'late' ? 'Atrasado' : 'Pontual')}</span></div>`;
+  renderUniformDisplay();
+  openModal('uniformModal');
+}
+
+function renderUniformDisplay() {
+  const html = [1,2,3].map(i => `<span style="color:${currentUniformValue >= i ? 'var(--red-mid)' : 'var(--grey-300)'}">●</span>`).join(' ');
+  document.getElementById('uniformDisplay').innerHTML = html;
+}
+
+function addUniformFlag() {
+  currentUniformValue = Math.min(currentUniformValue + 1, 3);
+  renderUniformDisplay();
+}
+
+function removeUniformFlag() {
+  currentUniformValue = Math.max(currentUniformValue - 1, 0);
+  renderUniformDisplay();
+}
+
+function saveUniformFlag() {
+  const s = students.find(x => x.id === currentUniformId);
+  if (!s) return;
+  const prev = s.uniformFlags || 0;
+  const notes = document.getElementById('uniformNotes').value.trim();
+  s.uniformFlags = currentUniformValue;
+  if (currentUniformValue > prev) {
+    queueMessage(s.id, 'uniform', 1, 'auto', 'Violação de uniforme registrada');
+  }
+  addAuditEntry('config', s, `Uniforme atualizado: ${prev} → ${s.uniformFlags}${notes ? ' | '+notes : ''}`);
+  closeModal('uniformModal');
+  renderTable();
+  renderMessages();
+  showToast('Status de uniforme atualizado ✓', currentUniformValue >= 3 ? 'warning' : 'success');
 }
 
 function openStrike(id) {
@@ -1326,6 +1702,7 @@ function kioskCheckin(id) {
   s.editedBy = 'Modo Quiosque';
   s.editMotivo = 'Fallback biométrico';
   s.status = late ? 'late' : 'on-time';
+  if (late && s.bio) queueMessage(s.id, 'late', getLateMessageLevel(s), 'auto', 'Gerado por Modo Quiosque');
   addAuditEntry('kiosk', s, `Kiosk check-in: ${now}${late ? ' (ATRASADO)' : ' (pontual)'}`);
   document.getElementById('kioskResults').style.display = 'none';
   document.getElementById('kioskSearchInput').value = '';
@@ -1333,6 +1710,7 @@ function kioskCheckin(id) {
   document.getElementById('kioskConfirmDetail').textContent = `${CLASS_LABELS[s.cls]} · Entrada: ${now} · ${late ? '⏰ Atrasado' : '✅ Pontual'}`;
   document.getElementById('kioskConfirm').style.display = '';
   renderTable(); renderKPIs(); renderAtrasos();
+  renderMessages();
   showToast('Check-in registrado ✓', late ? 'warning' : 'success');
 }
 
@@ -1353,6 +1731,7 @@ function saveCutoff() {
   addAuditEntry('config', {name:'—', cls:'—'}, `Horário de corte alterado para ${val}`);
   showToast(`Horário de corte atualizado: ${val}`, 'success');
   renderTable(); renderKPIs(); renderAtrasos();
+  renderMessages();
 }
 function updateStrikeLimit(val) {
   config.strikeLimit = parseInt(val) || 3;
