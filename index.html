@@ -97,6 +97,7 @@ button { font-family: inherit; }
   font-size: 12px; font-weight: 500; font-family: inherit; transition: all 0.15s;
 }
 .campus-pill .on { background: rgba(255,255,255,0.18); color: #F7FAFA; }
+.lang-pill { display: inline-flex; }
 .mode-switch { display: flex; align-items: center; gap: 8px; }
 .mode-btn {
   border: 1px solid transparent;
@@ -499,8 +500,8 @@ tr.row-red .strikes .filled { color: var(--red-mid); }
         </svg>
       </div>
       <div class="header-titles">
-        <div class="app">Presença <span style="font-size:11px;opacity:0.6;font-weight:400;margin-left:4px;">MVP v1</span></div>
-        <div class="tenant">Powered by TRST · Colégio New Way</div>
+        <div class="app"><span id="appTitleLabel">Presença</span> <span style="font-size:11px;opacity:0.6;font-weight:400;margin-left:4px;">MVP v2</span></div>
+        <div class="tenant" id="tenantLabel">Powered by TRST · Colégio New Way</div>
       </div>
     </div>
     <div class="header-right">
@@ -520,9 +521,14 @@ tr.row-red .strikes .filled { color: var(--red-mid); }
         <button onclick="setCampus('CG',this)">CG</button>
       </div>
       <div class="nw-divider"></div>
+      <div class="campus-pill lang-pill" id="langPill" aria-label="Idioma / Language">
+        <button class="on" onclick="setLanguage('pt',this)">PT</button>
+        <button onclick="setLanguage('en',this)">EN</button>
+      </div>
+      <div class="nw-divider"></div>
       <div class="mode-switch" aria-label="Modo da demo">
-        <button class="mode-btn mode-btn-admin active" id="adminModeBtn" onclick="setMode('admin')">Coordenacao</button>
-        <button class="mode-btn mode-btn-kiosk" id="kioskModeBtn" onclick="setMode('kiosk')">Modo Quiosque</button>
+        <button class="mode-btn mode-btn-admin active" id="adminModeBtn" onclick="setMode('admin')"><span id="adminModeLabel">Coordenacao</span></button>
+        <button class="mode-btn mode-btn-kiosk" id="kioskModeBtn" onclick="setMode('kiosk')"><span id="kioskModeLabel">Modo Quiosque</span></button>
       </div>
     </div>
   </div>
@@ -532,27 +538,27 @@ tr.row-red .strikes .filled { color: var(--red-mid); }
 <nav class="tabs-bar" id="tabsBar">
   <button class="tab-btn active" data-tab="chamada" onclick="switchTab('chamada',this)">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
-    Chamada
+    <span id="tabChamadaLabel">Chamada</span>
   </button>
   <button class="tab-btn" data-tab="atrasos" onclick="switchTab('atrasos',this)">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-    Atrasos <span class="badge" id="atrasoBadge">0</span>
+    <span id="tabAtrasosLabel">Atrasos</span> <span class="badge" id="atrasoBadge">0</span>
   </button>
   <button class="tab-btn" id="kioskTab" data-tab="kiosk" onclick="switchTab('kiosk',this)" style="display:none">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
-    Modo Quiosque
+    <span id="tabKioskLabel">Modo Quiosque</span>
   </button>
   <button class="tab-btn" id="mensagensTab" data-tab="mensagens" onclick="switchTab('mensagens',this)" style="display:none">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-    Comunicações
+    <span id="tabMensagensLabel">Comunicações</span>
   </button>
   <button class="tab-btn" id="configTab" data-tab="configuracoes" onclick="switchTab('configuracoes',this)" style="display:none">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
-    Configurações
+    <span id="tabConfigLabel">Configurações</span>
   </button>
   <button class="tab-btn" id="auditoriaTab" data-tab="auditoria" onclick="switchTab('auditoria',this)" style="display:none">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-    Auditoria
+    <span id="tabAuditoriaLabel">Auditoria</span>
   </button>
 </nav>
 
@@ -566,7 +572,7 @@ tr.row-red .strikes .filled { color: var(--red-mid); }
         <input type="text" id="searchInput" placeholder="Buscar aluno…" oninput="filterTable()">
       </div>
       <select class="ctrl-select" id="turmaFilter" onchange="filterTable()">
-        <option value="">Todas as turmas</option>
+        <option value="" id="optAllClasses">Todas as turmas</option>
         <option value="7A">7º A</option>
         <option value="7B">7º B</option>
         <option value="8A">8º A</option>
@@ -575,21 +581,21 @@ tr.row-red .strikes .filled { color: var(--red-mid); }
         <option value="9B">9º B</option>
       </select>
       <select class="ctrl-select" id="statusFilter" onchange="filterTable()">
-        <option value="">Todos os status</option>
-        <option value="on-time">Presente (pontual)</option>
-        <option value="late">Atrasado</option>
-        <option value="absent">Ausente</option>
+        <option value="" id="statusAllOption">Todos os status</option>
+        <option value="on-time" id="statusOnTimeOption">Presente (pontual)</option>
+        <option value="late" id="statusLateOption">Atrasado</option>
+        <option value="absent" id="statusAbsentOption">Ausente</option>
       </select>
       <input type="date" class="ctrl-select" id="dateFilter" onchange="filterTable()">
     </div>
     <div class="controls-right">
       <button class="btn btn-ghost" onclick="exportCSV()">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        Exportar XLSX
+        <span id="exportBtnLabel">Exportar XLSX</span>
       </button>
       <button class="btn btn-primary" id="addManualBtn" onclick="openAddModal()" style="display:none">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        Registro manual
+        <span id="manualBtnLabel">Registro manual</span>
       </button>
     </div>
   </div>
@@ -607,8 +613,8 @@ tr.row-red .strikes .filled { color: var(--red-mid); }
 
     <!-- Policy strip -->
     <div class="policy">
-      <span><span class="live-dot"></span> Corte de atraso: <strong id="cutoffDisplay">07:35</strong> · Política de advertências: <strong id="strikePolicyDisplay">3 advertências = contato com responsável</strong></span>
-      <span id="policyEditLink" style="display:none"><button class="btn btn-ghost btn-sm" onclick="switchTab('configuracoes',document.querySelector('[data-tab=configuracoes]'))">Editar política</button></span>
+      <span id="policyText"><span class="live-dot"></span> Corte de atraso: <strong id="cutoffDisplay">07:35</strong> · Política de advertências: <strong id="strikePolicyDisplay">3 advertências = contato com responsável</strong></span>
+      <span id="policyEditLink" style="display:none"><button class="btn btn-ghost btn-sm" id="policyEditBtn" onclick="switchTab('configuracoes',document.querySelector('[data-tab=configuracoes]'))">Editar política</button></span>
     </div>
 
     <!-- Table -->
@@ -620,12 +626,12 @@ tr.row-red .strikes .filled { color: var(--red-mid); }
       <table>
         <thead>
           <tr>
-            <th>Aluno</th>
-            <th>Turma</th>
-            <th>Entrada</th>
-            <th>Atrasos (advertências)</th>
-            <th>Biometria</th>
-            <th>Uniforme</th>
+            <th id="thStudent">Aluno</th>
+            <th id="thClass">Turma</th>
+            <th id="thEntry">Entrada</th>
+            <th id="thDelays">Atrasos (advertências)</th>
+            <th id="thBio">Biometria</th>
+            <th id="thUniform">Uniforme</th>
             <th></th>
           </tr>
         </thead>
@@ -635,9 +641,9 @@ tr.row-red .strikes .filled { color: var(--red-mid); }
 
     <!-- Legend -->
     <div class="legend">
-      <div class="legend-item"><span class="dot ok"></span> Presente e pontual</div>
-      <div class="legend-item"><span class="dot amber"></span> Atrasado</div>
-      <div class="legend-item"><span class="dot red"></span> 3ª advertência — ação requerida</div>
+      <div class="legend-item"><span class="dot ok"></span> <span id="legendOnTime">Presente e pontual</span></div>
+      <div class="legend-item"><span class="dot amber"></span> <span id="legendLate">Atrasado</span></div>
+      <div class="legend-item"><span class="dot red"></span> <span id="legendStrike">3ª advertência — ação requerida</span></div>
     </div>
 
     <footer class="footer">
@@ -653,25 +659,25 @@ tr.row-red .strikes .filled { color: var(--red-mid); }
 <div class="tab-pane" id="tab-mensagens">
   <div class="wrap">
     <div class="page-head">
-      <div><h1>Comunicações WhatsApp</h1><div class="subtitle">Mensagens pré-definidas com revisão da Coordenação e aprovação por PIN</div></div>
-      <div><button class="btn btn-primary" onclick="openMessageModal()">Adicionar mensagem manual</button></div>
+      <div><h1 id="messagesTitle">Comunicações WhatsApp</h1><div class="subtitle" id="messagesSubtitle">Mensagens pré-definidas com revisão da Coordenação e aprovação por PIN</div></div>
+      <div><button class="btn btn-primary" id="messagesAddBtn" onclick="openMessageModal()">Adicionar mensagem manual</button></div>
     </div>
 
     <div class="msg-section">
-      <h2>Modelos pré-definidos</h2>
+      <h2 id="msgTemplatesTitle">Modelos pré-definidos</h2>
       <div class="msg-grid" id="msgTemplates"></div>
     </div>
 
     <div class="msg-section">
       <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px;flex-wrap:wrap">
-        <h2 style="margin:0">Pendentes de aprovação</h2>
+        <h2 style="margin:0" id="msgPendingTitle">Pendentes de aprovação</h2>
         <button id="approveAllBtn" class="btn btn-warning btn-sm" onclick="requestPinApprovalAll()">Aprovar e enviar todas</button>
       </div>
       <div id="msgQueue"></div>
     </div>
 
     <div class="msg-section">
-      <h2>Enviadas</h2>
+      <h2 id="msgSentTitle">Enviadas</h2>
       <div id="msgSent"></div>
     </div>
   </div>
@@ -681,7 +687,7 @@ tr.row-red .strikes .filled { color: var(--red-mid); }
 <div class="tab-pane" id="tab-atrasos">
   <div class="wrap">
     <div class="page-head">
-      <div><h1>Atrasos</h1><div class="subtitle">Alunos que chegaram após o corte de <strong id="cutoffDisplayAtrasos">07:35</strong></div></div>
+      <div><h1 id="latePageTitle">Atrasos</h1><div class="subtitle" id="latePageSubtitle">Alunos que chegaram após o corte de <strong id="cutoffDisplayAtrasos">07:35</strong></div></div>
     </div>
     <div class="info-banner" id="atrasosInfo"></div>
     <div class="atraso-cards" id="atrasosGrid"></div>
@@ -690,13 +696,13 @@ tr.row-red .strikes .filled { color: var(--red-mid); }
 
 <!-- ============================================================ TAB: KIOSK ============================================================ -->
 <div class="tab-pane" id="tab-kiosk">
-  <div class="kiosk-supervisor-bar">
+  <div class="kiosk-supervisor-bar" id="kioskSupervisorText">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
     Modo Quiosque — supervisao assistida. Apenas alunos registrados podem fazer check-in manual.
   </div>
   <div class="kiosk-view">
-    <div class="kiosk-header">Check-in de Entrada</div>
-    <div class="kiosk-sub">Busque o aluno pelo nome para registrar entrada manual</div>
+    <div class="kiosk-header" id="kioskHeaderText">Check-in de Entrada</div>
+    <div class="kiosk-sub" id="kioskSubText">Busque o aluno pelo nome para registrar entrada manual</div>
     <div class="kiosk-search-wrap">
       <svg class="kiosk-search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
       <input type="text" id="kioskSearchInput" placeholder="Nome do aluno…" oninput="kioskSearch(this.value)" autocomplete="off">
@@ -708,7 +714,7 @@ tr.row-red .strikes .filled { color: var(--red-mid); }
         <h3 id="kioskConfirmName"></h3>
         <p id="kioskConfirmDetail"></p>
       </div>
-      <button class="btn btn-ghost" style="margin-top:16px;width:100%" onclick="resetKiosk()">Novo check-in</button>
+      <button class="btn btn-ghost" id="kioskResetBtn" style="margin-top:16px;width:100%" onclick="resetKiosk()">Novo check-in</button>
     </div>
   </div>
 </div>
@@ -1048,6 +1054,7 @@ const MESSAGE_TEMPLATES = {
   uniform: 'Prezados responsáveis, informamos que hoje o(a) aluno(a) {student} nao veio com o uniforme padrao exigido pela escola.'
 };
 let currentMode = 'admin';
+let currentLanguage = 'pt';
 let currentEditId = null;
 let currentStrikeId = null;
 let currentDetailId = null;
@@ -1058,6 +1065,151 @@ let pinApprovalMode = 'single';
 let selectedManualStudentId = null;
 let messageQueue = [];
 let messageCounter = 1;
+
+const I18N = {
+  pt: {
+    app_title: 'Presença',
+    tenant: 'Powered by TRST · Colégio New Way',
+    mode_admin: 'Coordenacao',
+    mode_kiosk: 'Modo Quiosque',
+    tab_chamada: 'Chamada',
+    tab_atrasos: 'Atrasos',
+    tab_kiosk: 'Modo Quiosque',
+    tab_messages: 'Comunicações',
+    tab_config: 'Configurações',
+    tab_audit: 'Auditoria',
+    search_placeholder: 'Buscar aluno…',
+    all_classes: 'Todas as turmas',
+    status_all: 'Todos os status',
+    status_ontime: 'Presente (pontual)',
+    status_late: 'Atrasado',
+    status_absent: 'Ausente',
+    export: 'Exportar XLSX',
+    manual_record: 'Registro manual',
+    chamada_title: 'Chamada',
+    today: 'Hoje',
+    students_registered: 'alunos cadastrados',
+    policy_edit: 'Editar política',
+    th_student: 'Aluno',
+    th_class: 'Turma',
+    th_entry: 'Entrada',
+    th_delays: 'Atrasos (advertências)',
+    th_bio: 'Biometria',
+    th_uniform: 'Uniforme',
+    legend_ontime: 'Presente e pontual',
+    legend_late: 'Atrasado',
+    legend_strike: '3ª advertência — ação requerida',
+    messages_title: 'Comunicações WhatsApp',
+    messages_subtitle: 'Mensagens pré-definidas com revisão da Coordenação e aprovação por PIN',
+    add_manual_message: 'Adicionar mensagem manual',
+    templates_title: 'Modelos pré-definidos',
+    pending_title: 'Pendentes de aprovação',
+    sent_title: 'Enviadas',
+    approve_all: 'Aprovar e enviar todas',
+    late_page_title: 'Atrasos',
+    late_page_subtitle: 'Alunos que chegaram após o corte de',
+    kiosk_supervisor: 'Modo Quiosque — supervisao assistida. Apenas alunos registrados podem fazer check-in manual.',
+    kiosk_header: 'Check-in de Entrada',
+    kiosk_sub: 'Busque o aluno pelo nome para registrar entrada manual',
+    kiosk_new: 'Novo check-in',
+    kpi_on_time: 'Presentes e pontuais',
+    kpi_late: 'Atrasados',
+    kpi_absent: 'Ausentes',
+    kpi_strike: '3ª advertência ativa',
+    of_students: 'de {count} alunos',
+    after_cutoff: 'após corte {time}',
+    no_record_today: 'sem registro hoje',
+    contact_required: 'contato requerido',
+    showing: 'Mostrando {filtered} de {total} alunos',
+    no_students: 'Nenhum aluno encontrado com estes filtros',
+    pending: 'Pendente',
+    registered: 'Registrada',
+    manage: 'Gerenciar',
+    add_warning: '+ Advertência',
+    edited: 'editado',
+    late_info: '{count} aluno(s) registraram entrada após {time} hoje. Alunos com 3ª advertência requerem contato imediato com responsável.',
+    no_late_today: 'Nenhum atraso registrado hoje!',
+    entry_label: 'Entrada',
+    warnings_count: 'advertência(s)',
+    contact_guardian: '📞 Contatar resp.',
+    add_warning_btn: '+ Advertência',
+    pending_empty: 'Sem mensagens pendentes para revisão.',
+    sent_empty: 'Nenhuma mensagem enviada ainda.',
+    pending_btn: 'Aprovar + enviar WhatsApp',
+    discard_btn: 'Descartar'
+  },
+  en: {
+    app_title: 'Attendance',
+    tenant: 'Powered by TRST · New Way School',
+    mode_admin: 'Coordination',
+    mode_kiosk: 'Kiosk Mode',
+    tab_chamada: 'Roll Call',
+    tab_atrasos: 'Late',
+    tab_kiosk: 'Kiosk Mode',
+    tab_messages: 'Communications',
+    tab_config: 'Settings',
+    tab_audit: 'Audit',
+    search_placeholder: 'Search student…',
+    all_classes: 'All classes',
+    status_all: 'All statuses',
+    status_ontime: 'Present (on time)',
+    status_late: 'Late',
+    status_absent: 'Absent',
+    export: 'Export XLSX',
+    manual_record: 'Manual check-in',
+    chamada_title: 'Roll Call',
+    today: 'Today',
+    students_registered: 'registered students',
+    policy_edit: 'Edit policy',
+    th_student: 'Student',
+    th_class: 'Class',
+    th_entry: 'Entry',
+    th_delays: 'Late (warnings)',
+    th_bio: 'Biometric',
+    th_uniform: 'Uniform',
+    legend_ontime: 'Present and on time',
+    legend_late: 'Late',
+    legend_strike: '3rd warning — action required',
+    messages_title: 'WhatsApp Communications',
+    messages_subtitle: 'Predefined messages with Coordination review and PIN approval',
+    add_manual_message: 'Add manual message',
+    templates_title: 'Predefined templates',
+    pending_title: 'Pending approval',
+    sent_title: 'Sent',
+    approve_all: 'Approve and send all',
+    late_page_title: 'Late',
+    late_page_subtitle: 'Students who arrived after cutoff',
+    kiosk_supervisor: 'Kiosk mode — assisted supervision. Only registered students can complete manual check-in.',
+    kiosk_header: 'Entry Check-in',
+    kiosk_sub: 'Search student by name to register a manual check-in',
+    kiosk_new: 'New check-in',
+    kpi_on_time: 'Present and on time',
+    kpi_late: 'Late',
+    kpi_absent: 'Absent',
+    kpi_strike: '3rd warning active',
+    of_students: 'of {count} students',
+    after_cutoff: 'after cutoff {time}',
+    no_record_today: 'no record today',
+    contact_required: 'contact required',
+    showing: 'Showing {filtered} of {total} students',
+    no_students: 'No students found with these filters',
+    pending: 'Pending',
+    registered: 'Registered',
+    manage: 'Manage',
+    add_warning: '+ Warning',
+    edited: 'edited',
+    late_info: '{count} student(s) were registered after {time} today. Students with a 3rd warning require immediate guardian contact.',
+    no_late_today: 'No late arrivals today!',
+    entry_label: 'Entry',
+    warnings_count: 'warning(s)',
+    contact_guardian: '📞 Contact guardian',
+    add_warning_btn: '+ Warning',
+    pending_empty: 'No pending messages for review.',
+    sent_empty: 'No sent messages yet.',
+    pending_btn: 'Approve + send WhatsApp',
+    discard_btn: 'Discard'
+  }
+};
 
 // ============================================================
 //   INIT
@@ -1076,8 +1228,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderAddMotivos();
   updateCutoffDisplay();
   updateModeUI();
-  document.getElementById('lastUpdated').textContent = `Atualizado: ${new Date().toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'})}`;
-  document.getElementById('chamadaSubtitle').innerHTML = `Hoje, <strong>${formatDatePT(TODAY)}</strong> · <strong>${students.length} alunos</strong> cadastrados`;
+  applyLanguage();
 });
 
 // ============================================================
@@ -1098,8 +1249,81 @@ function setCampus(c, btn) {
   document.querySelectorAll('#campusPill button').forEach(b => b.classList.remove('on'));
   btn.classList.add('on');
   document.getElementById('campusLabel').textContent = c;
+  updateChamadaTitle();
   renderTable();
   renderKPIs();
+}
+
+function t(key, vars = {}) {
+  const dict = I18N[currentLanguage] || I18N.pt;
+  let text = dict[key] || I18N.pt[key] || key;
+  Object.keys(vars).forEach(k => {
+    text = text.replace(`{${k}}`, vars[k]);
+  });
+  return text;
+}
+
+function setLanguage(lang, btn) {
+  currentLanguage = lang;
+  document.querySelectorAll('#langPill button').forEach(b => b.classList.remove('on'));
+  if (btn) btn.classList.add('on');
+  applyLanguage();
+  renderTable();
+  renderKPIs();
+  renderAtrasos();
+  renderMessages();
+  renderMessageTemplates();
+}
+
+function updateChamadaTitle() {
+  document.getElementById('chamadaTitle').innerHTML = `${t('chamada_title')} — <span id="campusLabel">${config.campus}</span>`;
+}
+
+function applyLanguage() {
+  document.getElementById('appTitleLabel').textContent = t('app_title');
+  document.getElementById('tenantLabel').textContent = t('tenant');
+  document.getElementById('adminModeLabel').textContent = t('mode_admin');
+  document.getElementById('kioskModeLabel').textContent = t('mode_kiosk');
+  document.getElementById('tabChamadaLabel').textContent = t('tab_chamada');
+  document.getElementById('tabAtrasosLabel').textContent = t('tab_atrasos');
+  document.getElementById('tabKioskLabel').textContent = t('tab_kiosk');
+  document.getElementById('tabMensagensLabel').textContent = t('tab_messages');
+  document.getElementById('tabConfigLabel').textContent = t('tab_config');
+  document.getElementById('tabAuditoriaLabel').textContent = t('tab_audit');
+  document.getElementById('searchInput').placeholder = t('search_placeholder');
+  document.getElementById('optAllClasses').textContent = t('all_classes');
+  document.getElementById('statusAllOption').textContent = t('status_all');
+  document.getElementById('statusOnTimeOption').textContent = t('status_ontime');
+  document.getElementById('statusLateOption').textContent = t('status_late');
+  document.getElementById('statusAbsentOption').textContent = t('status_absent');
+  document.getElementById('exportBtnLabel').textContent = t('export');
+  document.getElementById('manualBtnLabel').textContent = t('manual_record');
+  updateChamadaTitle();
+  document.getElementById('policyEditBtn').textContent = t('policy_edit');
+  document.getElementById('thStudent').textContent = t('th_student');
+  document.getElementById('thClass').textContent = t('th_class');
+  document.getElementById('thEntry').textContent = t('th_entry');
+  document.getElementById('thDelays').textContent = t('th_delays');
+  document.getElementById('thBio').textContent = t('th_bio');
+  document.getElementById('thUniform').textContent = t('th_uniform');
+  document.getElementById('legendOnTime').textContent = t('legend_ontime');
+  document.getElementById('legendLate').textContent = t('legend_late');
+  document.getElementById('legendStrike').textContent = t('legend_strike');
+  document.getElementById('messagesTitle').textContent = t('messages_title');
+  document.getElementById('messagesSubtitle').textContent = t('messages_subtitle');
+  document.getElementById('messagesAddBtn').textContent = t('add_manual_message');
+  document.getElementById('msgTemplatesTitle').textContent = t('templates_title');
+  document.getElementById('msgPendingTitle').textContent = t('pending_title');
+  document.getElementById('msgSentTitle').textContent = t('sent_title');
+  document.getElementById('latePageTitle').textContent = t('late_page_title');
+  document.getElementById('latePageSubtitle').innerHTML = `${t('late_page_subtitle')} <strong id="cutoffDisplayAtrasos">${config.cutoff}</strong>`;
+  document.getElementById('kioskSupervisorText').innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>${t('kiosk_supervisor')}`;
+  document.getElementById('kioskHeaderText').textContent = t('kiosk_header');
+  document.getElementById('kioskSubText').textContent = t('kiosk_sub');
+  document.getElementById('kioskResetBtn').textContent = t('kiosk_new');
+  document.getElementById('lastUpdated').textContent = `${currentLanguage === 'en' ? 'Updated' : 'Atualizado'}: ${new Date().toLocaleTimeString(currentLanguage === 'en' ? 'en-US' : 'pt-BR', {hour:'2-digit',minute:'2-digit'})}`;
+  const dateLabel = currentLanguage === 'en' ? formatDateEN(TODAY) : formatDatePT(TODAY);
+  document.getElementById('chamadaSubtitle').innerHTML = `${t('today')}, <strong>${dateLabel}</strong> · <strong>${students.length} ${t('students_registered')}</strong>`;
 }
 
 // ============================================================
@@ -1141,24 +1365,24 @@ function renderKPIs() {
   const kpiRow = document.getElementById('kpiRow');
   kpiRow.innerHTML = `
     <div class="chip green" role="button" aria-pressed="false" onclick="setStatusFilter('on-time',this)">
-      <div class="label">Presentes e pontuais</div>
+      <div class="label">${t('kpi_on_time')}</div>
       <div class="value">${present - late}</div>
-      <div class="sub">de ${total} alunos</div>
+      <div class="sub">${t('of_students', {count: total})}</div>
     </div>
     <div class="chip amber" role="button" aria-pressed="false" onclick="setStatusFilter('late',this)">
-      <div class="label">Atrasados</div>
+      <div class="label">${t('kpi_late')}</div>
       <div class="value">${late}</div>
-      <div class="sub">após corte ${config.cutoff}</div>
+      <div class="sub">${t('after_cutoff', {time: config.cutoff})}</div>
     </div>
     <div class="chip red" role="button" aria-pressed="false" onclick="setStatusFilter('absent',this)">
-      <div class="label">Ausentes</div>
+      <div class="label">${t('kpi_absent')}</div>
       <div class="value">${absent}</div>
-      <div class="sub">sem registro hoje</div>
+      <div class="sub">${t('no_record_today')}</div>
     </div>
     <div class="chip" role="button" aria-pressed="false" onclick="setStatusFilter('',this)">
-      <div class="label">3ª advertência ativa</div>
+      <div class="label">${t('kpi_strike')}</div>
       <div class="value" style="color:var(--critical)">${strike3}</div>
-      <div class="sub">contato requerido</div>
+      <div class="sub">${t('contact_required')}</div>
     </div>
   `;
 
@@ -1189,11 +1413,11 @@ function renderTable() {
     return true;
   });
 
-  document.getElementById('tableCount').textContent = `Mostrando ${filtered.length} de ${students.length} alunos`;
+  document.getElementById('tableCount').textContent = t('showing', {filtered: filtered.length, total: students.length});
 
   const tbody = document.getElementById('tableBody');
   if (filtered.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="icon">🔍</div><p>Nenhum aluno encontrado com estes filtros</p></div></td></tr>';
+    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="icon">🔍</div><p>${t('no_students')}</p></div></td></tr>`;
     return;
   }
 
@@ -1204,7 +1428,7 @@ function renderTable() {
 
     let entryCell = '';
     if (s.status === 'absent') {
-      entryCell = `<span class="entry"><span class="dot" style="background:var(--grey-300)"></span><span class="none">Ausente</span></span>`;
+      entryCell = `<span class="entry"><span class="dot" style="background:var(--grey-300)"></span><span class="none">${t('status_absent')}</span></span>`;
     } else if (s.status === 'late') {
       const [h,m] = s.entry.split(':');
       const [ch,cm] = config.cutoff.split(':');
@@ -1213,11 +1437,11 @@ function renderTable() {
     } else {
       entryCell = `<span class="entry"><span class="dot"></span><span>${s.entry}</span></span>`;
     }
-    if (s.edited) entryCell += ` <span class="edited-flag" title="Editado por ${s.editedBy}">editado</span>`;
+    if (s.edited) entryCell += ` <span class="edited-flag" title="Editado by ${s.editedBy}">${t('edited')}</span>`;
 
     const bioCell = s.bio
-      ? `<span class="bio"><span class="bio-dot ok"></span>Registrada</span>`
-      : `<span class="bio"><span class="bio-dot pending"></span><span class="pend-link" onclick="openDetail(${s.id})">Pendente</span></span>`;
+      ? `<span class="bio"><span class="bio-dot ok"></span>${t('registered')}</span>`
+      : `<span class="bio"><span class="bio-dot pending"></span><span class="pend-link" onclick="openDetail(${s.id})">${t('pending')}</span></span>`;
 
     const uniformCell = `
       <div class="strike-cell">
@@ -1226,13 +1450,13 @@ function renderTable() {
           <span class="${s.uniformFlags >= 2 ? 'on' : 'off'}">●</span>
           <span class="${s.uniformFlags >= 3 ? 'on' : 'off'}">●</span>
         </span>
-        <button class="strike-cta" onclick="openUniform(${s.id})">Gerenciar</button>
+        <button class="strike-cta" onclick="openUniform(${s.id})">${t('manage')}</button>
       </div>`;
 
     const strikeCell = `
       <div class="strike-cell">
         <span class="strikes">${stars}</span>
-        <button class="strike-cta" onclick="openStrike(${s.id})">${s.strikes > 0 ? 'Gerenciar' : '+ Advertência'}</button>
+        <button class="strike-cta" onclick="openStrike(${s.id})">${s.strikes > 0 ? t('manage') : t('add_warning')}</button>
       </div>`;
 
     return `
@@ -1261,12 +1485,12 @@ function filterTable() { renderTable(); }
 // ============================================================
 function renderAtrasos() {
   const late = students.filter(s => s.status === 'late');
-  document.getElementById('atrasosInfo').innerHTML = `${late.length} aluno(s) registraram entrada após ${config.cutoff} hoje. Alunos com 3ª advertência requerem contato imediato com responsável.`;
+  document.getElementById('atrasosInfo').innerHTML = t('late_info', {count: late.length, time: config.cutoff});
   document.getElementById('cutoffDisplayAtrasos').textContent = config.cutoff;
 
   const grid = document.getElementById('atrasosGrid');
   if (late.length === 0) {
-    grid.innerHTML = '<div class="empty-state"><div class="icon">🎉</div><p>Nenhum atraso registrado hoje!</p></div>';
+    grid.innerHTML = `<div class="empty-state"><div class="icon">🎉</div><p>${t('no_late_today')}</p></div>`;
     return;
   }
   const starsTotal = config.strikeLimit;
@@ -1281,13 +1505,13 @@ function renderAtrasos() {
         <div>
           <div class="student">${s.name}</div>
           <div class="class-name">${CLASS_LABELS[s.cls]}</div>
-          <div class="time-info">Entrada: ${s.entry} (+${diffMin}min) · ${s.strikes} advertência(s)</div>
+          <div class="time-info">${t('entry_label')}: ${s.entry} (+${diffMin}min) · ${s.strikes} ${t('warnings_count')}</div>
         </div>
         <div class="actions">
           <div class="strikes-display">${stars}</div>
           ${isThird
-            ? `<button class="parent-cta" onclick="notifyParent(${s.id})">📞 Contatar resp.</button>`
-            : `<button class="strike-add-btn" onclick="openStrike(${s.id})">+ Advertência</button>`}
+            ? `<button class="parent-cta" onclick="notifyParent(${s.id})">${t('contact_guardian')}</button>`
+            : `<button class="strike-add-btn" onclick="openStrike(${s.id})">${t('add_warning_btn')}</button>`}
         </div>
       </div>`;
   }).join('');
@@ -1359,10 +1583,10 @@ function renderMessageTemplates() {
   const root = document.getElementById('msgTemplates');
   if (!root) return;
   root.innerHTML = `
-    <div class="msg-card"><h4>Atraso — 1ª ocorrência</h4><p>${MESSAGE_TEMPLATES.late1}</p></div>
-    <div class="msg-card"><h4>Atraso — 2ª ocorrência</h4><p>${MESSAGE_TEMPLATES.late2}</p></div>
-    <div class="msg-card"><h4>Atraso — 3ª ocorrência</h4><p>${MESSAGE_TEMPLATES.late3}</p></div>
-    <div class="msg-card"><h4>Violação de uniforme</h4><p>${MESSAGE_TEMPLATES.uniform}</p></div>
+    <div class="msg-card"><h4>${currentLanguage === 'en' ? 'Late - 1st occurrence' : 'Atraso — 1ª ocorrência'}</h4><p>${MESSAGE_TEMPLATES.late1}</p></div>
+    <div class="msg-card"><h4>${currentLanguage === 'en' ? 'Late - 2nd occurrence' : 'Atraso — 2ª ocorrência'}</h4><p>${MESSAGE_TEMPLATES.late2}</p></div>
+    <div class="msg-card"><h4>${currentLanguage === 'en' ? 'Late - 3rd occurrence' : 'Atraso — 3ª ocorrência'}</h4><p>${MESSAGE_TEMPLATES.late3}</p></div>
+    <div class="msg-card"><h4>${currentLanguage === 'en' ? 'Uniform violation' : 'Violação de uniforme'}</h4><p>${MESSAGE_TEMPLATES.uniform}</p></div>
   `;
 }
 
@@ -1375,7 +1599,7 @@ function renderMessages() {
 
   if (approveAllBtn) {
     approveAllBtn.disabled = pending.length === 0;
-    approveAllBtn.textContent = pending.length > 0 ? `Aprovar e enviar todas (${pending.length})` : 'Aprovar e enviar todas';
+    approveAllBtn.textContent = pending.length > 0 ? `${t('approve_all')} (${pending.length})` : t('approve_all');
   }
 
   if (queueRoot) {
@@ -1386,11 +1610,11 @@ function renderMessages() {
         <div style="font-size:13px;color:var(--grey-600);margin-top:6px">${m.text}</div>
         ${m.notes ? `<div style="font-size:12px;color:var(--grey-400);margin-top:6px">Obs: ${m.notes}</div>` : ''}
         <div class="msg-actions">
-          <button class="btn btn-primary btn-sm" onclick="requestPinApproval(${m.id})">Aprovar + enviar WhatsApp</button>
-          <button class="btn btn-ghost btn-sm" onclick="discardMessage(${m.id})">Descartar</button>
+          <button class="btn btn-primary btn-sm" onclick="requestPinApproval(${m.id})">${t('pending_btn')}</button>
+          <button class="btn btn-ghost btn-sm" onclick="discardMessage(${m.id})">${t('discard_btn')}</button>
         </div>
       </div>
-    `).join('') : '<div class="empty-state"><p>Sem mensagens pendentes para revisão.</p></div>';
+    `).join('') : `<div class="empty-state"><p>${t('pending_empty')}</p></div>`;
   }
 
   if (sentRoot) {
@@ -1400,7 +1624,7 @@ function renderMessages() {
         <div><strong>${m.studentName}</strong></div>
         <div style="font-size:13px;color:var(--grey-600);margin-top:6px">${m.text}</div>
       </div>
-    `).join('') : '<div class="empty-state"><p>Nenhuma mensagem enviada ainda.</p></div>';
+    `).join('') : `<div class="empty-state"><p>${t('sent_empty')}</p></div>`;
   }
 }
 
@@ -1889,6 +2113,9 @@ function showToast(msg, type='') {
 // ============================================================
 function formatDatePT(d) {
   return d.toLocaleDateString('pt-BR', {weekday:'long', year:'numeric', month:'long', day:'numeric'});
+}
+function formatDateEN(d) {
+  return d.toLocaleDateString('en-US', {weekday:'long', year:'numeric', month:'long', day:'numeric'});
 }
 </script>
 </body>
