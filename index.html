@@ -43,7 +43,7 @@
   --red:        #A82A22;
   --red-mid:    #C93D32;
   --red-soft:   #FDECEA;
-  /* NOTE: "greve" removed — school context uses "advertência" (demerit/warning) */
+  /* School wording uses "advertência" (demerit/warning) */
   --green-soft: #E8F5F0;
   --blue-soft:  #EEF3FB;
   --font: 'Space Grotesk', system-ui, -apple-system, sans-serif;
@@ -1031,7 +1031,7 @@ tr.row-red .strikes .filled { color: var(--red-mid); }
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal('bioEnrollModal')">Cancelar</button>
-      <button class="btn btn-primary" onclick="saveBiometricEnrollment()">Registrar palma</button>
+      <button class="btn btn-primary" onclick="saveBiometricEnrollment()">Registrar template</button>
     </div>
   </div>
 </div>
@@ -1164,7 +1164,8 @@ const I18N = {
     bio_pending: 'Pendente',
     bio_unauthorized: 'Nao autorizada',
     bio_authorize: 'Autorizar',
-    bio_enroll_palm: '🖐️ Cadastrar palma',
+    bio_enroll_palm: '🖐️',
+    bio_template_action: 'Adicionar template biométrico',
     bio_consent_statement: 'Atencao, confirmo que o aluno {student} tem autorizacao dos responsavel para a utilizacao da biometria.',
     pin_send_title: 'Aprovar envio para WhatsApp',
     pin_send_alert: 'Confirme com PIN da Coordenação para evitar envio não intencional.',
@@ -1173,8 +1174,8 @@ const I18N = {
     pin_consent_confirm: 'Confirmar autorizacao',
     terminal_modal_title: 'Selecionar terminal de biometria',
     terminal_select_placeholder: 'Selecione um terminal',
-    terminal_register_palm: 'Registrar palma',
-    terminal_registered_toast: 'Biometria registrada com sucesso',
+    terminal_register_palm: 'Registrar template',
+    terminal_registered_toast: 'Template biométrico registrado com sucesso',
     consent_logged_toast: 'Autorizacao biometrica registrada em auditoria',
     select_terminal_toast: 'Selecione um terminal para continuar',
     th_uniform: 'Uniforme',
@@ -1254,7 +1255,8 @@ const I18N = {
     bio_pending: 'Pending',
     bio_unauthorized: 'Not authorized',
     bio_authorize: 'Authorize',
-    bio_enroll_palm: '🖐️ Enroll palm',
+    bio_enroll_palm: '🖐️',
+    bio_template_action: 'Add biometric template',
     bio_consent_statement: 'Attention, I confirm that student {student} has guardian authorization for biometric use.',
     pin_send_title: 'Approve WhatsApp send',
     pin_send_alert: 'Confirm with Coordination PIN to avoid unintended sending.',
@@ -1263,8 +1265,8 @@ const I18N = {
     pin_consent_confirm: 'Confirm authorization',
     terminal_modal_title: 'Select biometric terminal',
     terminal_select_placeholder: 'Select a terminal',
-    terminal_register_palm: 'Register palm',
-    terminal_registered_toast: 'Biometric successfully registered',
+    terminal_register_palm: 'Register template',
+    terminal_registered_toast: 'Biometric template registered successfully',
     consent_logged_toast: 'Biometric authorization logged to audit',
     select_terminal_toast: 'Select a terminal to continue',
     th_uniform: 'Uniform',
@@ -1543,11 +1545,12 @@ function renderTable() {
     }
     if (s.edited) entryCell += ` <span class="edited-flag" title="Editado by ${s.editedBy}">${t('edited')}</span>`;
 
+    const bioActionButton = `<button class="bio-enroll-btn" onclick="openBiometricEnrollment(${s.id})" title="${t('bio_template_action')}" aria-label="${t('bio_template_action')}">${t('bio_enroll_palm')}</button>`;
     let bioCell = '';
     if (s.bio) {
-      bioCell = `<span class="bio"><span class="bio-dot ok"></span>${t('bio_registered')}</span>`;
+      bioCell = `<span class="bio"><span class="bio-dot ok"></span>${t('bio_registered')}${bioActionButton}</span>`;
     } else if (s.bioConsent) {
-      bioCell = `<span class="bio"><span class="bio-dot pending"></span><span>${t('bio_pending')}</span><button class="bio-enroll-btn" onclick="openBiometricEnrollment(${s.id})">${t('bio_enroll_palm')}</button></span>`;
+      bioCell = `<span class="bio"><span class="bio-dot pending"></span><span>${t('bio_pending')}</span>${bioActionButton}</span>`;
     } else {
       bioCell = `<span class="bio"><span class="bio-dot blocked"></span><span class="bio-text-unauthorized">${t('bio_unauthorized')}</span><label class="bio-consent-check"><input type="checkbox" onchange="requestBiometricAuthorization(event, ${s.id}, this)"><span>${t('bio_authorize')}</span></label></span>`;
     }
@@ -1920,7 +1923,7 @@ function saveBiometricEnrollment() {
   student.bio = true;
   student.bioConsent = true;
   student.bioTerminal = terminal;
-  addAuditEntry('biometric', student, `Biometria cadastrada no ${terminal}`);
+  addAuditEntry('biometric', student, `Template biométrico registrado no ${terminal}`);
   closeModal('bioEnrollModal');
   renderTable();
   showToast(t('terminal_registered_toast'), 'success');
@@ -1953,7 +1956,7 @@ function openDetail(id) {
     <div class="info-row"><span class="info-label">Biometria</span><span class="info-val">${biometricLabel}</span></div>
     ${s.bioTerminal ? `<div class="info-row"><span class="info-label">Terminal</span><span class="info-val">${s.bioTerminal}</span></div>` : ''}
     <div class="info-row"><span class="info-label">Uniforme</span><span class="info-val">${s.uniformFlags}/3 marcação(ões)</span></div>
-    <div class="info-row"><span class="info-label">Greves</span><span class="info-val">${stars}</span></div>
+    <div class="info-row"><span class="info-label">Advertências</span><span class="info-val">${stars}</span></div>
     ${s.edited ? `<div class="info-row"><span class="info-label">Editado por</span><span class="info-val">${s.editedBy} — ${s.editMotivo}</span></div>` : ''}
     <div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--grey-100)">
       <div style="font-size:12px;color:var(--grey-400);font-weight:500;margin-bottom:8px">ID do aluno</div>
@@ -2286,7 +2289,7 @@ function renderAudit() {
 function exportCSV() {
   const date = document.getElementById('dateFilter').value || TODAY_STR;
   const rows = [
-    ['Nome','Turma','Entrada','Status','Greves','Biometria','Editado','Editado por','Motivo']
+    ['Nome','Turma','Entrada','Status','Advertências','Biometria','Editado','Editado por','Motivo']
   ];
   students.forEach(s => {
     rows.push([
