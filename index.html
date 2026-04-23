@@ -1143,6 +1143,11 @@ const I18N = {
     tab_messages: 'Comunicações',
     tab_config: 'Configurações',
     tab_audit: 'Auditoria',
+    audit_type_edit: 'Edição',
+    audit_type_strike: 'Advertência',
+    audit_type_config: 'Configuração',
+    audit_type_kiosk: 'Quiosque',
+    audit_type_biometric: 'Biometria',
     search_placeholder: 'Buscar aluno…',
     all_classes: 'Todas as turmas',
     status_all: 'Todos os status',
@@ -1234,6 +1239,11 @@ const I18N = {
     tab_messages: 'Communications',
     tab_config: 'Settings',
     tab_audit: 'Audit',
+    audit_type_edit: 'Edit',
+    audit_type_strike: 'Warning',
+    audit_type_config: 'Config',
+    audit_type_kiosk: 'Kiosk',
+    audit_type_biometric: 'Biometric',
     search_placeholder: 'Search student…',
     all_classes: 'All classes',
     status_all: 'All statuses',
@@ -1843,7 +1853,7 @@ function approveMessageWithPin() {
       return;
     }
     student.bioConsent = true;
-    addAuditEntry('biometric', student, 'Autorizacao biometrica confirmada com PIN pela equipe escolar');
+    addAuditEntry('biometric', student, 'Autorizacao dos responsáveis confirmada com PIN: Nao autorizada → Pendente para biometria');
     closeModal('pinModal');
     if (pendingBiometricConsentCheckbox) pendingBiometricConsentCheckbox.checked = true;
     pendingBiometricConsentId = null;
@@ -1851,6 +1861,7 @@ function approveMessageWithPin() {
     pinApprovalMode = 'single';
     configurePinModal();
     renderTable();
+    renderAudit();
     showToast(t('consent_logged_toast'), 'success');
     return;
   }
@@ -2269,13 +2280,18 @@ function addAuditEntry(type, s, action) {
   auditLog.unshift({ts: now, type, student: s.name, cls: s.cls === '-' ? '-' : CLASS_LABELS[s.cls], action, user: currentMode === 'admin' ? 'Coordenacao' : 'Modo Quiosque'});
   renderAudit();
 }
+
+function getAuditTypeLabel(type) {
+  return t(`audit_type_${type}`);
+}
+
 function renderAudit() {
   const tbody = document.getElementById('auditBody');
   if (!tbody) return;
   tbody.innerHTML = auditLog.map(e => `
     <tr>
       <td style="font-variant-numeric:tabular-nums;color:var(--grey-400)">${e.ts}</td>
-      <td><span class="audit-type ${e.type}">${e.type}</span></td>
+      <td><span class="audit-type ${e.type}">${getAuditTypeLabel(e.type)}</span></td>
       <td style="font-weight:500">${e.student}</td>
       <td>${e.cls}</td>
       <td style="color:var(--grey-600);max-width:320px">${e.action}</td>
