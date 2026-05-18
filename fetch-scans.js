@@ -140,10 +140,12 @@ async function discoverEndpoints(project) {
     }
   }
 
+  // Probe all candidates — collect ALL that need date params, try each with actual dates
+  const needsParams = [];
+
   for (const ep of candidates) {
     const url = `${API_BASE}${ep}`;
     try {
-      // Use already-discovered authHeaders if available; otherwise probe all variants
       const result = authHeaders
         ? { res: await requestWithHeaders(url, authHeaders), authHeaders }
         : await request(url, project.apiKey);
@@ -160,10 +162,9 @@ async function discoverEndpoints(project) {
         return { endpoint: ep, sample, authHeaders: ah };
       } else if (res.status === 400) {
         const body = JSON.stringify(res.body);
-        // 400 with a date/param error means the endpoint EXISTS but needs required params
         if (body.includes('from') || body.includes('date') || body.includes('parse') || body.includes('required')) {
-          console.log(`  ✓ Endpoint needs required params: ${ep} (${body.slice(0, 100)})`);
-          return { endpoint: ep, sample: null, authHeaders: ah, needsDateParams: true };
+          console.log(`  ~ ${ep} → needs date params`);
+          needsParams.push({ ep, authHeaders: ah });
         }
         console.log(`  ? ${ep} → HTTP 400 | ${body.slice(0, 150)}`);
       } else if (res.status !== 404) {
@@ -174,10 +175,34 @@ async function discoverEndpoints(project) {
     }
   }
 
-  // Nothing found — return project endpoint so we can at least dump its fields
+  // For each candidate that needs date params, try with actual dates and pick first with data
+  if (needsParams.length > 0) {
+    console.log(`  Probing ${needsParams.length} date-param endpoints with real dates…`);
+    const testFrom = '2020-01-01T00:00:00Z';
+    const testTo   = '2030-01-01T00:00:00Z';
+    for (const { ep, authHeaders: ah } of needsParams) {
+      try {
+        const sep = ep.includes('?') ? '&' : '?';
+        const url = `${API_BASE}${ep}${sep}from=${testFrom}&to=${testTo}&page=1&per_page=10`;
+        const res = await requestWithHeaders(url, ah);
+        const total = res.body?.total_count ?? '?';
+        console.log(`  [${res.status}] ${ep} → total_count: ${total} | ${JSON.stringify(res.body).slice(0,120)}`);
+        if (res.status === 200 && (res.body?.total_count > 0 || extractRows(res.body).length > 0)) {
+          console.log(`  ✓ Has data: ${ep}`);
+          return { endpoint: ep, authHeaders: ah };
+        }
+      } catch (e) {
+        console.log(`  ✗ ${ep} → ${e.message}`);
+      }
+    }
+    // Return first one anyway so fetch can try different date formats
+    const first = needsParams[0];
+    console.log(`  ~ All returned 0. Using first: ${first.ep}`);
+    return { endpoint: first.ep, authHeaders: first.authHeaders };
+  }
+
   if (proj) {
-    console.log(`  ✗ No list endpoint found. Project info keys: ${Object.keys(proj.info).join(', ')}`);
-    console.log(`  Full project info: ${JSON.stringify(proj.info, null, 2)}`);
+    console.log(`  ✗ No endpoint found. Project keys: ${Object.keys(proj.info).join(', ')}`);
   }
   return null;
 }
@@ -190,10 +215,9 @@ function extractRows(body) {
   return [];
 }
 
-// Confirmed working call: from=<ISO>&to=<ISO>&page=<uint32>&per_page=<uint32>
 async function trystRequest(baseEndpoint, authHeaders, from, to, page = 1, perPage = 1000) {
   const sep = baseEndpoint.includes('?') ? '&' : '?';
-  const url = `${API_BASE}${baseEndpoint}${sep}from=${from}&to=${to}&page=${page}&per_page=${perPage}`;
+  const url = `${API_BASE}${baseEndpoint}${sep}from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&page=${page}&per_page=${perPage}`;
   const res = await requestWithHeaders(url, authHeaders);
   return res;
 }
@@ -202,47 +226,38 @@ async function fetchAllScans(project, baseEndpoint, authHeaders, date = TARGET_D
   const dayStart = `${date}T00:00:00Z`;
   const dayEnd   = `${date}T23:59:59Z`;
 
-  // Try the transactions endpoint with confirmed params
-  let res = await trystRequest(baseEndpoint, authHeaders, dayStart, dayEnd);
-  console.log(`    [${res.status}] ${date} → total_count: ${res.body?.total_count ?? JSON.stringify(res.body).slice(0,100)}`);
+  // Try UTC and local (no-Z) datetime formats
+  const fromVariants = [dayStart, dayStart.replace('Z',''), `${date}T00:00:00-03:00`];
+  const toVariants   = [dayEnd,   dayEnd.replace('Z',''),   `${date}T23:59:59-03:00`];
 
-  if (res.status !== 200) return [];
+  let res = null;
+  let allRows = [];
+  let total = 0;
 
-  let allRows = extractRows(res.body);
-  const total = res.body?.total_count ?? allRows.length;
-  console.log(`    → ${total} total record(s) on ${date}`);
-
-  // If 0, try wider ranges to confirm the endpoint has ANY data
-  if (total === 0) {
-    // Try whole month
-    const [y, m] = date.split('-');
-    const monthStart = `${y}-${m}-01T00:00:00Z`;
-    const monthEnd   = `${y}-${m}-31T23:59:59Z`;
-    const mRes = await trystRequest(baseEndpoint, authHeaders, monthStart, monthEnd);
-    const mTotal = mRes.body?.total_count ?? 0;
-    console.log(`    → ${mTotal} record(s) in ${y}-${m} (whole month check)`);
-
-    // Try last 90 days
-    const today = new Date();
-    const past90 = new Date(today - 90 * 86400000);
-    const rangeRes = await trystRequest(baseEndpoint, authHeaders,
-      past90.toISOString().replace('.000Z','Z'), today.toISOString().replace('.000Z','Z'));
-    const rTotal = rangeRes.body?.total_count ?? 0;
-    console.log(`    → ${rTotal} record(s) in last 90 days`);
-
-    if (mTotal === 0 && rTotal === 0) {
-      // Try ALL time — use a very wide window
-      const allRes = await trystRequest(baseEndpoint, authHeaders, '2020-01-01T00:00:00Z', '2030-01-01T00:00:00Z');
-      const aTotal = allRes.body?.total_count ?? 0;
-      console.log(`    → ${aTotal} record(s) ever (2020–2030 range). Sample: ${JSON.stringify(allRes.body).slice(0,300)}`);
-      if (aTotal > 0) {
-        allRows = extractRows(allRes.body);
-      }
-    } else if (rTotal > 0) {
-      // Fetch just the matching day records from the 90-day set
-      allRows = [];
+  for (let i = 0; i < fromVariants.length; i++) {
+    res = await trystRequest(baseEndpoint, authHeaders, fromVariants[i], toVariants[i]);
+    total = res.body?.total_count ?? 0;
+    console.log(`    [${res.status}] from=${fromVariants[i]} → total_count: ${total}`);
+    if (res.status === 200 && total > 0) {
+      allRows = extractRows(res.body);
+      break;
     }
-    return allRows;
+  }
+
+  if (res?.status !== 200) return [];
+  if (total === 0) {
+    // Widen search to find any data at all
+    const checks = [
+      [`${date.slice(0,7)}-01T00:00:00Z`, `${date.slice(0,7)}-31T23:59:59Z`, 'whole month'],
+      ['2020-01-01T00:00:00Z', '2030-01-01T00:00:00Z', 'all-time'],
+    ];
+    for (const [f, t, label] of checks) {
+      const r = await trystRequest(baseEndpoint, authHeaders, f, t);
+      const n = r.body?.total_count ?? 0;
+      console.log(`    → ${n} record(s) ${label} | sample: ${JSON.stringify(r.body).slice(0,150)}`);
+      if (n > 0) break;
+    }
+    return [];
   }
 
   // Paginate remaining pages
