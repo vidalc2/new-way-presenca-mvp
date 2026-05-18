@@ -18,13 +18,13 @@ const PROJECTS = [
     name: 'JPA',
     label: 'New Way JPA (João Pessoa)',
     projectId: '019ca04b-4abf-774b-8240-68bb547dbae5',
-    apiKey: 'AZz9dhlrdsOEbbyRIfPiTA.mIZLNFRsW9ai6Nh5Fo9CjxfIRgLzxmN4TU6YT8RVaNU',
+    apiKey: process.env.TRST_JPA_API_KEY,
   },
   {
     name: 'CG',
     label: 'New Way CG (Campina Grande)',
     projectId: '019c92ae-d49d-77eb-aa27-8cb0b3ea6b7d',
-    apiKey: 'AZ0CBsh5f2OFyxGSzJKVRA.Gc_ihXR2SvA8cdH_17JQ_gFC6_tLLx8RDVuqXO53dkE',
+    apiKey: process.env.TRST_CG_API_KEY,
   },
 ];
 
