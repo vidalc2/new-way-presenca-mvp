@@ -90,59 +90,88 @@ async function request(url, apiKey) {
   return lastRes; // return best attempt even if all fail auth
 }
 
+async function getProjectInfo(project) {
+  const result = await request(`${API_BASE}/projects/${project.projectId}`, project.apiKey);
+  if (result && result.res.status === 200) return { info: result.res.body, authHeaders: result.authHeaders };
+  return null;
+}
+
 async function discoverEndpoints(project) {
   const id = project.projectId;
-  const candidates = [
-    `/projects/${id}/scans`,
-    `/projects/${id}/scan-logs`,
-    `/projects/${id}/scan_logs`,
-    `/projects/${id}/entries`,
-    `/projects/${id}/accesses`,
-    `/projects/${id}/access-logs`,
-    `/projects/${id}/logs`,
-    `/projects/${id}/checkins`,
-    `/projects/${id}/check-ins`,
-    `/projects/${id}/events`,
-    `/projects/${id}/attendances`,
-    `/projects/${id}/presences`,
-    `/scans?project_id=${id}`,
-    `/scans?projectId=${id}`,
-    `/events?project_id=${id}`,
-    `/attendances?project_id=${id}`,
-    `/projects/${id}`,
-  ];
 
-  let fallback = null;
+  // First, fetch project info to grab environment_id and other IDs
+  const proj = await getProjectInfo(project);
+  const envId = proj?.info?.environment_id;
+  const authHeaders = proj?.authHeaders;
+
+  if (envId) console.log(`  environment_id: ${envId}`);
+
+  // Build candidate list — project-level, environment-level, and root-level
+  const candidates = [];
+
+  // Project-scoped
+  for (const sub of ['scans','scan-logs','scan_logs','entries','accesses','access-logs',
+                      'access_logs','logs','checkins','check-ins','events','transactions',
+                      'attendances','presences','passes','visits','records']) {
+    candidates.push(`/projects/${id}/${sub}`);
+  }
+
+  // Environment-scoped (often where scan data lives in TRST)
+  if (envId) {
+    for (const sub of ['scans','scan-logs','scan_logs','entries','accesses','access-logs',
+                       'access_logs','logs','checkins','check-ins','events','transactions',
+                       'attendances','presences','passes','visits','records']) {
+      candidates.push(`/environments/${envId}/${sub}`);
+    }
+    candidates.push(`/environments/${envId}`);
+  }
+
+  // Root-level with filters
+  for (const param of [`project_id=${id}`, `projectId=${id}`]) {
+    for (const ep of ['scans','events','access-logs','transactions','entries']) {
+      candidates.push(`/${ep}?${param}`);
+    }
+  }
+  if (envId) {
+    for (const param of [`environment_id=${envId}`, `environmentId=${envId}`]) {
+      for (const ep of ['scans','events','access-logs','transactions','entries']) {
+        candidates.push(`/${ep}?${param}`);
+      }
+    }
+  }
+
   for (const ep of candidates) {
     const url = `${API_BASE}${ep}`;
     try {
-      const result = await request(url, project.apiKey);
+      // Use already-discovered authHeaders if available; otherwise probe all variants
+      const result = authHeaders
+        ? { res: await requestWithHeaders(url, authHeaders), authHeaders }
+        : await request(url, project.apiKey);
       if (!result) continue;
-      const { res, authHeaders } = result;
+      const { res, authHeaders: ah } = result;
       if (res.status === 200) {
         const sample = res.body;
         const rows = extractRows(sample);
-        // Skip generic project-info endpoints that return a plain object (not a list)
         if (!Array.isArray(sample) && rows.length === 0 && !Array.isArray(sample?.data)) {
-          console.log(`  ~ ${ep} → 200 but looks like project info, not a list. Keys: ${Object.keys(sample || {}).join(', ')}`);
-          // Keep it as fallback — store it but keep searching
-          if (!fallback) fallback = { endpoint: ep, sample, authHeaders };
+          console.log(`  ~ ${ep} → 200 (object). Keys: ${Object.keys(sample || {}).join(', ')}`);
           continue;
         }
-        console.log(`  ✓ Found list endpoint: ${ep}`);
-        return { endpoint: ep, sample, authHeaders };
+        console.log(`  ✓ Found list endpoint: ${ep} (${rows.length} rows in sample)`);
+        return { endpoint: ep, sample, authHeaders: ah };
       } else if (res.status !== 404) {
-        console.log(`  ? ${ep} → HTTP ${res.status} | body: ${JSON.stringify(res.body).slice(0, 200)}`);
+        console.log(`  ? ${ep} → HTTP ${res.status} | ${JSON.stringify(res.body).slice(0, 150)}`);
       }
     } catch (e) {
       console.error(`  ✗ ${ep} → ${e.message}`);
     }
   }
-  if (fallback) {
-    console.log(`  ~ Using project-info endpoint as fallback: ${fallback.endpoint}`);
-    console.log(`    Response keys: ${Object.keys(fallback.sample || {}).join(', ')}`);
+
+  // Nothing found — return project endpoint so we can at least dump its fields
+  if (proj) {
+    console.log(`  ✗ No list endpoint found. Project info keys: ${Object.keys(proj.info).join(', ')}`);
+    console.log(`  Full project info: ${JSON.stringify(proj.info, null, 2)}`);
   }
-  return fallback;
+  return null;
 }
 
 function extractRows(body) {
