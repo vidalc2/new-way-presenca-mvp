@@ -30,18 +30,30 @@ const PROJECTS = [
 
 const API_BASE = 'https://api.prod-brl.trstinc.ca/v1';
 
-function request(url, apiKey) {
+function buildAuthHeaders(apiKey) {
+  // The key format is "keyId.keySecret" — try multiple conventions
+  const [keyId, keySecret] = apiKey.split('.');
+  const basicToken = Buffer.from(`${keyId}:${keySecret}`).toString('base64');
+  const basicTokenFull = Buffer.from(`${apiKey}:`).toString('base64');
+  return [
+    { 'Authorization': `Bearer ${apiKey}`, 'Accept': 'application/json' },
+    { 'X-API-Key': apiKey, 'Accept': 'application/json' },
+    { 'Authorization': `Basic ${basicToken}`, 'Accept': 'application/json' },
+    { 'Authorization': `Basic ${basicTokenFull}`, 'Accept': 'application/json' },
+    { 'Authorization': `ApiKey ${apiKey}`, 'Accept': 'application/json' },
+    { 'api-key': apiKey, 'Accept': 'application/json' },
+    { 'Authorization': `Token ${apiKey}`, 'Accept': 'application/json' },
+  ];
+}
+
+function requestWithHeaders(url, headers) {
   return new Promise((resolve, reject) => {
     const parsedUrl = new URL(url);
     const options = {
       hostname: parsedUrl.hostname,
       path: parsedUrl.pathname + parsedUrl.search,
       method: 'GET',
-      headers: {
-        'X-API-Key': apiKey,
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-      },
+      headers,
     };
 
     const req = https.request(options, (res) => {
@@ -62,6 +74,22 @@ function request(url, apiKey) {
   });
 }
 
+// Probe one URL trying all auth header variants; returns {res, headers} on first non-401/403 or best guess
+async function request(url, apiKey) {
+  const variants = buildAuthHeaders(apiKey);
+  let lastRes = null;
+  for (const headers of variants) {
+    try {
+      const res = await requestWithHeaders(url, headers);
+      lastRes = { res, authHeaders: headers };
+      if (res.status !== 401 && res.status !== 403) return lastRes;
+    } catch (e) {
+      // try next variant
+    }
+  }
+  return lastRes; // return best attempt even if all fail auth
+}
+
 async function discoverEndpoints(project) {
   const candidates = [
     `/projects/${project.projectId}/scans`,
@@ -77,12 +105,14 @@ async function discoverEndpoints(project) {
   for (const ep of candidates) {
     const url = `${API_BASE}${ep}`;
     try {
-      const res = await request(url, project.apiKey);
+      const result = await request(url, project.apiKey);
+      if (!result) continue;
+      const { res, authHeaders } = result;
       if (res.status === 200) {
         console.log(`  ✓ Found working endpoint: ${ep}`);
-        return { endpoint: ep, sample: res.body };
+        return { endpoint: ep, sample: res.body, authHeaders };
       } else if (res.status !== 404) {
-        console.log(`  ? ${ep} → HTTP ${res.status}`);
+        console.log(`  ? ${ep} → HTTP ${res.status} | body: ${JSON.stringify(res.body).slice(0, 120)}`);
       }
     } catch (e) {
       console.error(`  ✗ ${ep} → ${e.message}`);
@@ -91,11 +121,18 @@ async function discoverEndpoints(project) {
   return null;
 }
 
-async function fetchAllScans(project, baseEndpoint) {
-  const dayStart = `${TARGET_DATE}T00:00:00Z`;
-  const dayEnd = `${TARGET_DATE}T23:59:59Z`;
+function extractRows(body) {
+  if (Array.isArray(body)) return body;
+  if (body && typeof body === 'object') {
+    return body.data || body.scans || body.results || body.items || body.records || body.entries || [];
+  }
+  return [];
+}
 
-  // Try various date filter param conventions
+async function fetchAllScans(project, baseEndpoint, authHeaders) {
+  const dayStart = `${TARGET_DATE}T00:00:00Z`;
+  const dayEnd   = `${TARGET_DATE}T23:59:59Z`;
+
   const dateParamSets = [
     `start=${dayStart}&end=${dayEnd}`,
     `start_date=${TARGET_DATE}&end_date=${TARGET_DATE}`,
@@ -103,69 +140,54 @@ async function fetchAllScans(project, baseEndpoint) {
     `date=${TARGET_DATE}`,
     `createdAt[gte]=${dayStart}&createdAt[lte]=${dayEnd}`,
     `scanned_at[gte]=${dayStart}&scanned_at[lte]=${dayEnd}`,
+    `created_at_start=${dayStart}&created_at_end=${dayEnd}`,
+    '', // no date filter — will filter client-side
   ];
 
   let allScans = [];
-  let usedParams = '';
+  let usedParams = null;
 
   for (const params of dateParamSets) {
     const sep = baseEndpoint.includes('?') ? '&' : '?';
-    const url = `${API_BASE}${baseEndpoint}${sep}${params}&limit=1000&page=1`;
+    const qs = params ? `${sep}${params}&limit=1000&page=1` : `${sep}limit=1000&page=1`;
+    const url = `${API_BASE}${baseEndpoint}${qs}`;
     try {
-      const res = await request(url, project.apiKey);
+      const res = await requestWithHeaders(url, authHeaders);
       if (res.status === 200) {
-        console.log(`  ✓ Date params work: ${params}`);
-        usedParams = params;
-        const body = res.body;
-        // Handle various response shapes: array, {data:[]}, {scans:[]}, {results:[]}, {items:[]}
-        if (Array.isArray(body)) {
-          allScans = body;
-        } else if (body && typeof body === 'object') {
-          allScans = body.data || body.scans || body.results || body.items || body.records || [];
+        const rows = extractRows(res.body);
+        if (params) {
+          console.log(`  ✓ Date filter: ${params} → ${rows.length} row(s)`);
+          allScans = rows;
+          usedParams = params;
+        } else {
+          // No date filter — filter client-side
+          const filtered = rows.filter(s => {
+            const ts = s.scanned_at || s.scannedAt || s.created_at || s.createdAt || s.timestamp || s.date || '';
+            return typeof ts === 'string' && ts.startsWith(TARGET_DATE);
+          });
+          console.log(`  ⚠ No date filter — fetched ${rows.length} row(s), ${filtered.length} match ${TARGET_DATE}`);
+          allScans = filtered;
+          usedParams = '';
         }
         break;
       }
-    } catch (e) {
-      // try next
-    }
+    } catch { /* try next */ }
   }
 
-  // If no date filter worked, fetch without date and filter client-side
-  if (allScans.length === 0 && usedParams === '') {
-    console.log('  ⚠ No date filter worked, fetching all and filtering client-side…');
-    const url = `${API_BASE}${baseEndpoint}${baseEndpoint.includes('?') ? '&' : '?'}limit=1000`;
-    try {
-      const res = await request(url, project.apiKey);
-      if (res.status === 200) {
-        const body = res.body;
-        const all = Array.isArray(body) ? body :
-          (body && typeof body === 'object' ? (body.data || body.scans || body.results || body.items || []) : []);
-        allScans = all.filter(s => {
-          const ts = s.scanned_at || s.scannedAt || s.created_at || s.createdAt || s.timestamp || s.date || '';
-          return typeof ts === 'string' && ts.startsWith(TARGET_DATE);
-        });
-      }
-    } catch (e) {
-      console.error(`  ✗ Fallback fetch failed: ${e.message}`);
-    }
-  }
-
-  // Paginate if needed
+  // Paginate using the working auth headers
   if (allScans.length > 0 && usedParams) {
     let page = 2;
     while (true) {
       const sep = baseEndpoint.includes('?') ? '&' : '?';
       const url = `${API_BASE}${baseEndpoint}${sep}${usedParams}&limit=1000&page=${page}`;
       try {
-        const res = await request(url, project.apiKey);
+        const res = await requestWithHeaders(url, authHeaders);
         if (res.status !== 200) break;
-        const body = res.body;
-        const chunk = Array.isArray(body) ? body :
-          (body && typeof body === 'object' ? (body.data || body.scans || body.results || body.items || []) : []);
+        const chunk = extractRows(res.body);
         if (chunk.length === 0) break;
         allScans = allScans.concat(chunk);
         page++;
-        if (page > 50) break; // safety cap
+        if (page > 50) break;
       } catch { break; }
     }
   }
@@ -230,7 +252,7 @@ async function main() {
 
     // 2. Fetch scans for the target date
     console.log(`  Fetching scans for ${TARGET_DATE}…`);
-    const scans = await fetchAllScans(project, discovery.endpoint);
+    const scans = await fetchAllScans(project, discovery.endpoint, discovery.authHeaders);
     console.log(`  → ${scans.length} scan(s) found`);
 
     // 3. Write CSV
