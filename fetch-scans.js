@@ -190,85 +190,71 @@ function extractRows(body) {
   return [];
 }
 
+// Confirmed working call: from=<ISO>&to=<ISO>&page=<uint32>&per_page=<uint32>
+async function trystRequest(baseEndpoint, authHeaders, from, to, page = 1, perPage = 1000) {
+  const sep = baseEndpoint.includes('?') ? '&' : '?';
+  const url = `${API_BASE}${baseEndpoint}${sep}from=${from}&to=${to}&page=${page}&per_page=${perPage}`;
+  const res = await requestWithHeaders(url, authHeaders);
+  return res;
+}
+
 async function fetchAllScans(project, baseEndpoint, authHeaders, date = TARGET_DATE) {
   const dayStart = `${date}T00:00:00Z`;
   const dayEnd   = `${date}T23:59:59Z`;
-  const dayStartMs = `${date}T00:00:00.000Z`;
-  const dayEndMs   = `${date}T23:59:59.999Z`;
 
-  // Try many `from`/`to` format variants — TRST confirmed "from" param name but format unknown
-  const dateParamSets = [
-    `from=${dayStart}&to=${dayEnd}`,
-    `from=${dayStartMs}&to=${dayEndMs}`,
-    `from=${date}&to=${date}`,
-    `from=${dayStart}`,
-    `start=${dayStart}&end=${dayEnd}`,
-    `start_date=${date}&end_date=${date}`,
-    `date=${date}`,
-  ];
+  // Try the transactions endpoint with confirmed params
+  let res = await trystRequest(baseEndpoint, authHeaders, dayStart, dayEnd);
+  console.log(`    [${res.status}] ${date} → total_count: ${res.body?.total_count ?? JSON.stringify(res.body).slice(0,100)}`);
 
-  let allScans = [];
-  let usedParams = null;
+  if (res.status !== 200) return [];
 
-  for (const params of dateParamSets) {
-    const sep = baseEndpoint.includes('?') ? '&' : '?';
-    // page is a required param on the TRST transactions endpoint
-    for (const extra of ['&page=1&limit=1000', '&page=1&per_page=1000', '&page=0&limit=1000', '&page=1']) {
-      const qs = `${sep}${params}${extra}`;
-      const url = `${API_BASE}${baseEndpoint}${qs}`;
-      try {
-        const res = await requestWithHeaders(url, authHeaders);
-        console.log(`    [${res.status}] ${params}${extra} → ${JSON.stringify(res.body).slice(0, 200)}`);
-        if (res.status === 200) {
-          const rows = extractRows(res.body);
-          allScans = rows;
-          usedParams = params + extra;
-          break;
-        }
-      } catch (e) {
-        console.log(`    [ERR] ${params}${extra} → ${e.message}`);
+  let allRows = extractRows(res.body);
+  const total = res.body?.total_count ?? allRows.length;
+  console.log(`    → ${total} total record(s) on ${date}`);
+
+  // If 0, try wider ranges to confirm the endpoint has ANY data
+  if (total === 0) {
+    // Try whole month
+    const [y, m] = date.split('-');
+    const monthStart = `${y}-${m}-01T00:00:00Z`;
+    const monthEnd   = `${y}-${m}-31T23:59:59Z`;
+    const mRes = await trystRequest(baseEndpoint, authHeaders, monthStart, monthEnd);
+    const mTotal = mRes.body?.total_count ?? 0;
+    console.log(`    → ${mTotal} record(s) in ${y}-${m} (whole month check)`);
+
+    // Try last 90 days
+    const today = new Date();
+    const past90 = new Date(today - 90 * 86400000);
+    const rangeRes = await trystRequest(baseEndpoint, authHeaders,
+      past90.toISOString().replace('.000Z','Z'), today.toISOString().replace('.000Z','Z'));
+    const rTotal = rangeRes.body?.total_count ?? 0;
+    console.log(`    → ${rTotal} record(s) in last 90 days`);
+
+    if (mTotal === 0 && rTotal === 0) {
+      // Try ALL time — use a very wide window
+      const allRes = await trystRequest(baseEndpoint, authHeaders, '2020-01-01T00:00:00Z', '2030-01-01T00:00:00Z');
+      const aTotal = allRes.body?.total_count ?? 0;
+      console.log(`    → ${aTotal} record(s) ever (2020–2030 range). Sample: ${JSON.stringify(allRes.body).slice(0,300)}`);
+      if (aTotal > 0) {
+        allRows = extractRows(allRes.body);
       }
+    } else if (rTotal > 0) {
+      // Fetch just the matching day records from the 90-day set
+      allRows = [];
     }
-    if (usedParams !== null) break;
+    return allRows;
   }
 
-  if (usedParams === null) {
-    // Last resort: fetch without date, filter client-side
-    const url = `${API_BASE}${baseEndpoint}${baseEndpoint.includes('?') ? '&' : '?'}page=1&limit=1000`;
-    try {
-      const res = await requestWithHeaders(url, authHeaders);
-      console.log(`    [${res.status}] no-date → ${JSON.stringify(res.body).slice(0, 300)}`);
-      if (res.status === 200) {
-        const all = extractRows(res.body);
-        allScans = all.filter(s => {
-          const ts = s.scanned_at || s.scannedAt || s.created_at || s.createdAt || s.timestamp || s.date || '';
-          return typeof ts === 'string' && ts.startsWith(date);
-        });
-        console.log(`    ⚠ Client-side filter: ${all.length} total → ${allScans.length} match ${date}`);
-        usedParams = '';
-      }
-    } catch (e) { console.log(`    [ERR] no-date → ${e.message}`); }
+  // Paginate remaining pages
+  const perPage = 1000;
+  const totalPages = Math.ceil(total / perPage);
+  for (let page = 2; page <= totalPages && page <= 50; page++) {
+    const pRes = await trystRequest(baseEndpoint, authHeaders, dayStart, dayEnd, page, perPage);
+    if (pRes.status !== 200) break;
+    allRows = allRows.concat(extractRows(pRes.body));
   }
 
-  // Paginate
-  if (allScans.length > 0 && usedParams) {
-    let page = 2;
-    while (true) {
-      const sep = baseEndpoint.includes('?') ? '&' : '?';
-      const url = `${API_BASE}${baseEndpoint}${sep}${usedParams}&page=${page}`;
-      try {
-        const res = await requestWithHeaders(url, authHeaders);
-        if (res.status !== 200) break;
-        const chunk = extractRows(res.body);
-        if (chunk.length === 0) break;
-        allScans = allScans.concat(chunk);
-        page++;
-        if (page > 50) break;
-      } catch { break; }
-    }
-  }
-
-  return allScans;
+  return allRows;
 }
 
 function flattenObject(obj, prefix = '') {
@@ -326,23 +312,13 @@ async function main() {
       continue;
     }
 
-    // 2. Try both possible years (user said "May 8th" without a year)
-    const datesToTry = TARGET_DATE === '2026-05-08'
-      ? ['2026-05-08', '2025-05-08']
-      : [TARGET_DATE];
-
-    let scans = [];
-    let usedDate = TARGET_DATE;
-    for (const d of datesToTry) {
-      console.log(`  Fetching scans for ${d}…`);
-      const rows = await fetchAllScans(project, discovery.endpoint, discovery.authHeaders, d);
-      if (rows.length > 0) { scans = rows; usedDate = d; break; }
-      console.log(`  → 0 rows for ${d}`);
-    }
-    console.log(`  → ${scans.length} scan(s) found (date: ${usedDate})`);
+    // 2. Fetch scans — also probes wider ranges if 0 results
+    console.log(`  Fetching scans for ${TARGET_DATE}…`);
+    const scans = await fetchAllScans(project, discovery.endpoint, discovery.authHeaders, TARGET_DATE);
+    console.log(`  → ${scans.length} scan(s) found`);
 
     // 3. Write CSV
-    const filename = path.join(outputDir, `scans_${project.name}_${usedDate}.csv`);
+    const filename = path.join(outputDir, `scans_${project.name}_${TARGET_DATE}.csv`);
     const csv = toCSV(scans);
     fs.writeFileSync(filename, csv, 'utf8');
     console.log(`  ✓ Saved: ${filename}`);
