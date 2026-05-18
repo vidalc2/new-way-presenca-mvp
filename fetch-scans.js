@@ -158,6 +158,14 @@ async function discoverEndpoints(project) {
         }
         console.log(`  ✓ Found list endpoint: ${ep} (${rows.length} rows in sample)`);
         return { endpoint: ep, sample, authHeaders: ah };
+      } else if (res.status === 400) {
+        const body = JSON.stringify(res.body);
+        // 400 with a date/param error means the endpoint EXISTS but needs required params
+        if (body.includes('from') || body.includes('date') || body.includes('parse') || body.includes('required')) {
+          console.log(`  ✓ Endpoint needs required params: ${ep} (${body.slice(0, 100)})`);
+          return { endpoint: ep, sample: null, authHeaders: ah, needsDateParams: true };
+        }
+        console.log(`  ? ${ep} → HTTP 400 | ${body.slice(0, 150)}`);
       } else if (res.status !== 404) {
         console.log(`  ? ${ep} → HTTP ${res.status} | ${JSON.stringify(res.body).slice(0, 150)}`);
       }
@@ -186,15 +194,17 @@ async function fetchAllScans(project, baseEndpoint, authHeaders, date = TARGET_D
   const dayStart = `${date}T00:00:00Z`;
   const dayEnd   = `${date}T23:59:59Z`;
 
+  // TRST uses `from`/`to` as required datetime params (confirmed from 400 error message)
   const dateParamSets = [
+    `from=${dayStart}&to=${dayEnd}`,
+    `from=${dayStart}&to=${dayEnd}&limit=1000`,
     `start=${dayStart}&end=${dayEnd}`,
     `start_date=${date}&end_date=${date}`,
-    `from=${dayStart}&to=${dayEnd}`,
     `date=${date}`,
     `createdAt[gte]=${dayStart}&createdAt[lte]=${dayEnd}`,
     `scanned_at[gte]=${dayStart}&scanned_at[lte]=${dayEnd}`,
     `created_at_start=${dayStart}&created_at_end=${dayEnd}`,
-    '', // no date filter — will filter client-side
+    '', // no date filter — filter client-side
   ];
 
   let allScans = [];
@@ -210,6 +220,9 @@ async function fetchAllScans(project, baseEndpoint, authHeaders, date = TARGET_D
         const rows = extractRows(res.body);
         if (params) {
           console.log(`  ✓ Date filter: ${params} → ${rows.length} row(s)`);
+          if (rows.length === 0) {
+            console.log(`    Raw response: ${JSON.stringify(res.body).slice(0, 300)}`);
+          }
           allScans = rows;
           usedParams = params;
         } else {
