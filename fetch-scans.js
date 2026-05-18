@@ -193,18 +193,18 @@ function extractRows(body) {
 async function fetchAllScans(project, baseEndpoint, authHeaders, date = TARGET_DATE) {
   const dayStart = `${date}T00:00:00Z`;
   const dayEnd   = `${date}T23:59:59Z`;
+  const dayStartMs = `${date}T00:00:00.000Z`;
+  const dayEndMs   = `${date}T23:59:59.999Z`;
 
-  // TRST uses `from`/`to` as required datetime params (confirmed from 400 error message)
+  // Try many `from`/`to` format variants — TRST confirmed "from" param name but format unknown
   const dateParamSets = [
     `from=${dayStart}&to=${dayEnd}`,
-    `from=${dayStart}&to=${dayEnd}&limit=1000`,
+    `from=${dayStartMs}&to=${dayEndMs}`,
+    `from=${date}&to=${date}`,
+    `from=${dayStart}`,
     `start=${dayStart}&end=${dayEnd}`,
     `start_date=${date}&end_date=${date}`,
     `date=${date}`,
-    `createdAt[gte]=${dayStart}&createdAt[lte]=${dayEnd}`,
-    `scanned_at[gte]=${dayStart}&scanned_at[lte]=${dayEnd}`,
-    `created_at_start=${dayStart}&created_at_end=${dayEnd}`,
-    '', // no date filter — filter client-side
   ];
 
   let allScans = [];
@@ -212,40 +212,50 @@ async function fetchAllScans(project, baseEndpoint, authHeaders, date = TARGET_D
 
   for (const params of dateParamSets) {
     const sep = baseEndpoint.includes('?') ? '&' : '?';
-    const qs = params ? `${sep}${params}&limit=1000&page=1` : `${sep}limit=1000&page=1`;
-    const url = `${API_BASE}${baseEndpoint}${qs}`;
-    try {
-      const res = await requestWithHeaders(url, authHeaders);
-      if (res.status === 200) {
-        const rows = extractRows(res.body);
-        if (params) {
-          console.log(`  ✓ Date filter: ${params} → ${rows.length} row(s)`);
-          if (rows.length === 0) {
-            console.log(`    Raw response: ${JSON.stringify(res.body).slice(0, 300)}`);
-          }
+    // Try with and without pagination params
+    for (const extra of ['&limit=1000', '&per_page=1000', '&size=1000', '']) {
+      const qs = `${sep}${params}${extra}`;
+      const url = `${API_BASE}${baseEndpoint}${qs}`;
+      try {
+        const res = await requestWithHeaders(url, authHeaders);
+        console.log(`    [${res.status}] ${params}${extra} → ${JSON.stringify(res.body).slice(0, 200)}`);
+        if (res.status === 200) {
+          const rows = extractRows(res.body);
           allScans = rows;
-          usedParams = params;
-        } else {
-          // No date filter — filter client-side
-          const filtered = rows.filter(s => {
-            const ts = s.scanned_at || s.scannedAt || s.created_at || s.createdAt || s.timestamp || s.date || '';
-            return typeof ts === 'string' && ts.startsWith(date);
-          });
-          console.log(`  ⚠ No date filter — fetched ${rows.length} row(s), ${filtered.length} match ${date}`);
-          allScans = filtered;
-          usedParams = '';
+          usedParams = params + extra;
+          break;
         }
-        break;
+      } catch (e) {
+        console.log(`    [ERR] ${params}${extra} → ${e.message}`);
       }
-    } catch { /* try next */ }
+    }
+    if (usedParams !== null) break;
   }
 
-  // Paginate using the working auth headers
+  if (usedParams === null) {
+    // Last resort: fetch without date, filter client-side
+    const url = `${API_BASE}${baseEndpoint}${baseEndpoint.includes('?') ? '&' : '?'}limit=1000`;
+    try {
+      const res = await requestWithHeaders(url, authHeaders);
+      console.log(`    [${res.status}] no-date → ${JSON.stringify(res.body).slice(0, 300)}`);
+      if (res.status === 200) {
+        const all = extractRows(res.body);
+        allScans = all.filter(s => {
+          const ts = s.scanned_at || s.scannedAt || s.created_at || s.createdAt || s.timestamp || s.date || '';
+          return typeof ts === 'string' && ts.startsWith(date);
+        });
+        console.log(`    ⚠ Client-side filter: ${all.length} total → ${allScans.length} match ${date}`);
+        usedParams = '';
+      }
+    } catch (e) { console.log(`    [ERR] no-date → ${e.message}`); }
+  }
+
+  // Paginate
   if (allScans.length > 0 && usedParams) {
     let page = 2;
     while (true) {
       const sep = baseEndpoint.includes('?') ? '&' : '?';
-      const url = `${API_BASE}${baseEndpoint}${sep}${usedParams}&limit=1000&page=${page}`;
+      const url = `${API_BASE}${baseEndpoint}${sep}${usedParams}&page=${page}`;
       try {
         const res = await requestWithHeaders(url, authHeaders);
         if (res.status !== 200) break;
