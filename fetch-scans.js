@@ -91,17 +91,28 @@ async function request(url, apiKey) {
 }
 
 async function discoverEndpoints(project) {
+  const id = project.projectId;
   const candidates = [
-    `/projects/${project.projectId}/scans`,
-    `/scans?project_id=${project.projectId}`,
-    `/scans?projectId=${project.projectId}`,
-    `/projects/${project.projectId}/events`,
-    `/events?project_id=${project.projectId}`,
-    `/projects/${project.projectId}/attendances`,
-    `/attendances?project_id=${project.projectId}`,
-    `/projects/${project.projectId}`,
+    `/projects/${id}/scans`,
+    `/projects/${id}/scan-logs`,
+    `/projects/${id}/scan_logs`,
+    `/projects/${id}/entries`,
+    `/projects/${id}/accesses`,
+    `/projects/${id}/access-logs`,
+    `/projects/${id}/logs`,
+    `/projects/${id}/checkins`,
+    `/projects/${id}/check-ins`,
+    `/projects/${id}/events`,
+    `/projects/${id}/attendances`,
+    `/projects/${id}/presences`,
+    `/scans?project_id=${id}`,
+    `/scans?projectId=${id}`,
+    `/events?project_id=${id}`,
+    `/attendances?project_id=${id}`,
+    `/projects/${id}`,
   ];
 
+  let fallback = null;
   for (const ep of candidates) {
     const url = `${API_BASE}${ep}`;
     try {
@@ -109,16 +120,29 @@ async function discoverEndpoints(project) {
       if (!result) continue;
       const { res, authHeaders } = result;
       if (res.status === 200) {
-        console.log(`  ✓ Found working endpoint: ${ep}`);
-        return { endpoint: ep, sample: res.body, authHeaders };
+        const sample = res.body;
+        const rows = extractRows(sample);
+        // Skip generic project-info endpoints that return a plain object (not a list)
+        if (!Array.isArray(sample) && rows.length === 0 && !Array.isArray(sample?.data)) {
+          console.log(`  ~ ${ep} → 200 but looks like project info, not a list. Keys: ${Object.keys(sample || {}).join(', ')}`);
+          // Keep it as fallback — store it but keep searching
+          if (!fallback) fallback = { endpoint: ep, sample, authHeaders };
+          continue;
+        }
+        console.log(`  ✓ Found list endpoint: ${ep}`);
+        return { endpoint: ep, sample, authHeaders };
       } else if (res.status !== 404) {
-        console.log(`  ? ${ep} → HTTP ${res.status} | body: ${JSON.stringify(res.body).slice(0, 120)}`);
+        console.log(`  ? ${ep} → HTTP ${res.status} | body: ${JSON.stringify(res.body).slice(0, 200)}`);
       }
     } catch (e) {
       console.error(`  ✗ ${ep} → ${e.message}`);
     }
   }
-  return null;
+  if (fallback) {
+    console.log(`  ~ Using project-info endpoint as fallback: ${fallback.endpoint}`);
+    console.log(`    Response keys: ${Object.keys(fallback.sample || {}).join(', ')}`);
+  }
+  return fallback;
 }
 
 function extractRows(body) {
@@ -129,15 +153,15 @@ function extractRows(body) {
   return [];
 }
 
-async function fetchAllScans(project, baseEndpoint, authHeaders) {
-  const dayStart = `${TARGET_DATE}T00:00:00Z`;
-  const dayEnd   = `${TARGET_DATE}T23:59:59Z`;
+async function fetchAllScans(project, baseEndpoint, authHeaders, date = TARGET_DATE) {
+  const dayStart = `${date}T00:00:00Z`;
+  const dayEnd   = `${date}T23:59:59Z`;
 
   const dateParamSets = [
     `start=${dayStart}&end=${dayEnd}`,
-    `start_date=${TARGET_DATE}&end_date=${TARGET_DATE}`,
+    `start_date=${date}&end_date=${date}`,
     `from=${dayStart}&to=${dayEnd}`,
-    `date=${TARGET_DATE}`,
+    `date=${date}`,
     `createdAt[gte]=${dayStart}&createdAt[lte]=${dayEnd}`,
     `scanned_at[gte]=${dayStart}&scanned_at[lte]=${dayEnd}`,
     `created_at_start=${dayStart}&created_at_end=${dayEnd}`,
@@ -163,9 +187,9 @@ async function fetchAllScans(project, baseEndpoint, authHeaders) {
           // No date filter — filter client-side
           const filtered = rows.filter(s => {
             const ts = s.scanned_at || s.scannedAt || s.created_at || s.createdAt || s.timestamp || s.date || '';
-            return typeof ts === 'string' && ts.startsWith(TARGET_DATE);
+            return typeof ts === 'string' && ts.startsWith(date);
           });
-          console.log(`  ⚠ No date filter — fetched ${rows.length} row(s), ${filtered.length} match ${TARGET_DATE}`);
+          console.log(`  ⚠ No date filter — fetched ${rows.length} row(s), ${filtered.length} match ${date}`);
           allScans = filtered;
           usedParams = '';
         }
@@ -250,13 +274,23 @@ async function main() {
       continue;
     }
 
-    // 2. Fetch scans for the target date
-    console.log(`  Fetching scans for ${TARGET_DATE}…`);
-    const scans = await fetchAllScans(project, discovery.endpoint, discovery.authHeaders);
-    console.log(`  → ${scans.length} scan(s) found`);
+    // 2. Try both possible years (user said "May 8th" without a year)
+    const datesToTry = TARGET_DATE === '2026-05-08'
+      ? ['2026-05-08', '2025-05-08']
+      : [TARGET_DATE];
+
+    let scans = [];
+    let usedDate = TARGET_DATE;
+    for (const d of datesToTry) {
+      console.log(`  Fetching scans for ${d}…`);
+      const rows = await fetchAllScans(project, discovery.endpoint, discovery.authHeaders, d);
+      if (rows.length > 0) { scans = rows; usedDate = d; break; }
+      console.log(`  → 0 rows for ${d}`);
+    }
+    console.log(`  → ${scans.length} scan(s) found (date: ${usedDate})`);
 
     // 3. Write CSV
-    const filename = path.join(outputDir, `scans_${project.name}_${TARGET_DATE}.csv`);
+    const filename = path.join(outputDir, `scans_${project.name}_${usedDate}.csv`);
     const csv = toCSV(scans);
     fs.writeFileSync(filename, csv, 'utf8');
     console.log(`  ✓ Saved: ${filename}`);
