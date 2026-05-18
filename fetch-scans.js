@@ -106,21 +106,41 @@ async function discoverEndpoints(project) {
 
   if (envId) console.log(`  environment_id: ${envId}`);
 
+  // First: try fetching people/members to understand data model
+  console.log('  Probing people/members endpoints…');
+  const peopleSubs = ['people','members','persons','users','identities','holders','cardholders',
+                      'employees','students','staff'];
+  for (const sub of peopleSubs) {
+    for (const base of [`/projects/${id}`, envId ? `/environments/${envId}` : null].filter(Boolean)) {
+      const ep = `${base}/${sub}`;
+      try {
+        const res = await requestWithHeaders(`${API_BASE}${ep}?page=1&per_page=5`, authHeaders);
+        if (res.status === 200) {
+          console.log(`  ✓ People endpoint: ${ep} → ${JSON.stringify(res.body).slice(0, 200)}`);
+        } else if (res.status !== 404) {
+          console.log(`  ? ${ep} → ${res.status} | ${JSON.stringify(res.body).slice(0, 100)}`);
+        }
+      } catch { /* skip */ }
+    }
+  }
+
   // Build candidate list — project-level, environment-level, and root-level
   const candidates = [];
 
   // Project-scoped
   for (const sub of ['scans','scan-logs','scan_logs','entries','accesses','access-logs',
                       'access_logs','logs','checkins','check-ins','events','transactions',
-                      'attendances','presences','passes','visits','records']) {
+                      'attendances','presences','passes','visits','records','biometric-events',
+                      'access-events','door-events','gate-events','identity-events']) {
     candidates.push(`/projects/${id}/${sub}`);
   }
 
-  // Environment-scoped (often where scan data lives in TRST)
+  // Environment-scoped
   if (envId) {
     for (const sub of ['scans','scan-logs','scan_logs','entries','accesses','access-logs',
                        'access_logs','logs','checkins','check-ins','events','transactions',
-                       'attendances','presences','passes','visits','records']) {
+                       'attendances','presences','passes','visits','records','biometric-events',
+                       'access-events','door-events','gate-events','identity-events']) {
       candidates.push(`/environments/${envId}/${sub}`);
     }
     candidates.push(`/environments/${envId}`);
