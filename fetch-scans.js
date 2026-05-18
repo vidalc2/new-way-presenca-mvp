@@ -212,8 +212,8 @@ async function fetchAllScans(project, baseEndpoint, authHeaders, date = TARGET_D
 
   for (const params of dateParamSets) {
     const sep = baseEndpoint.includes('?') ? '&' : '?';
-    // Try with and without pagination params
-    for (const extra of ['&limit=1000', '&per_page=1000', '&size=1000', '']) {
+    // page is a required param on the TRST transactions endpoint
+    for (const extra of ['&page=1&limit=1000', '&page=1&per_page=1000', '&page=0&limit=1000', '&page=1']) {
       const qs = `${sep}${params}${extra}`;
       const url = `${API_BASE}${baseEndpoint}${qs}`;
       try {
@@ -234,7 +234,7 @@ async function fetchAllScans(project, baseEndpoint, authHeaders, date = TARGET_D
 
   if (usedParams === null) {
     // Last resort: fetch without date, filter client-side
-    const url = `${API_BASE}${baseEndpoint}${baseEndpoint.includes('?') ? '&' : '?'}limit=1000`;
+    const url = `${API_BASE}${baseEndpoint}${baseEndpoint.includes('?') ? '&' : '?'}page=1&limit=1000`;
     try {
       const res = await requestWithHeaders(url, authHeaders);
       console.log(`    [${res.status}] no-date → ${JSON.stringify(res.body).slice(0, 300)}`);
