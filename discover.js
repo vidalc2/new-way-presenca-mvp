@@ -23,21 +23,38 @@ const API_BASE = 'https://api.prod-brl.trstinc.ca/v1';
 
 function get(url, apiKey) {
   return new Promise((resolve) => {
+    // Try Bearer first (works for TRST v1), fallback to Basic split-key
     const [keyId, keySecret] = (apiKey || '').split('.');
     const basic = Buffer.from(`${keyId}:${keySecret}`).toString('base64');
-    const headers = { 'Authorization': `Basic ${basic}`, 'Accept': 'application/json' };
-    const u = new URL(url);
-    const req = https.request({ hostname: u.hostname, path: u.pathname + u.search, headers }, (res) => {
-      let d = '';
-      res.on('data', c => d += c);
-      res.on('end', () => {
-        try { resolve({ status: res.statusCode, body: JSON.parse(d) }); }
-        catch { resolve({ status: res.statusCode, body: d }); }
+    const authVariants = [
+      `Bearer ${apiKey}`,
+      `Basic ${basic}`,
+      `ApiKey ${apiKey}`,
+    ];
+
+    function tryAuth(idx) {
+      if (idx >= authVariants.length) return resolve({ status: 0, body: 'all auth failed' });
+      const u = new URL(url);
+      const req = https.request({
+        hostname: u.hostname,
+        path: u.pathname + u.search,
+        headers: { 'Authorization': authVariants[idx], 'Accept': 'application/json' },
+      }, (res) => {
+        let d = '';
+        res.on('data', c => d += c);
+        res.on('end', () => {
+          const body = (() => { try { return JSON.parse(d); } catch { return d; } })();
+          if ((res.statusCode === 401 || res.statusCode === 403) && idx + 1 < authVariants.length) {
+            return tryAuth(idx + 1);
+          }
+          resolve({ status: res.statusCode, body, authUsed: authVariants[idx].split(' ')[0] });
+        });
       });
-    });
-    req.on('error', e => resolve({ status: 0, body: e.message }));
-    req.setTimeout(15000, () => { req.destroy(); resolve({ status: 0, body: 'timeout' }); });
-    req.end();
+      req.on('error', e => resolve({ status: 0, body: e.message }));
+      req.setTimeout(15000, () => { req.destroy(); resolve({ status: 0, body: 'timeout' }); });
+      req.end();
+    }
+    tryAuth(0);
   });
 }
 
@@ -68,11 +85,19 @@ async function main() {
     for (const r of roots) await probe(`${API_BASE}/${r}?page=1&per_page=5`, key, `/${r}`);
 
     // ── Project-scoped resources ─────────────────────────────────
-    const subs = ['scans','scan-logs','scan_logs','entries','accesses','access-logs','access_logs',
-                  'logs','checkins','check-ins','events','transactions','attendances','presences',
-                  'passes','visits','records','people','members','persons','users','identities',
-                  'holders','cardholders','biometric-events','access-events','door-events',
-                  'reports','history','timeline','activity','audit','audit-logs','audit_logs'];
+    const subs = [
+      // biometric / presence-check specific
+      'lookups','server-lookups','server_lookups','verifications','biometrics',
+      'biometric-verifications','biometric_verifications','identity-checks','identity_checks',
+      'presence','presence-checks','presence_checks','authentications','face-scans','palm-scans',
+      'finger-scans','enrollments','matches','recognitions','detections',
+      // access control
+      'scans','scan-logs','scan_logs','entries','accesses','access-logs','access_logs',
+      'logs','checkins','check-ins','events','transactions','attendances','presences',
+      'passes','visits','records','people','members','persons','users','identities',
+      'holders','cardholders','biometric-events','access-events','door-events',
+      'reports','history','timeline','activity','audit','audit-logs','audit_logs',
+    ];
     console.log('\n── /projects/{id}/... ──');
     for (const s of subs) await probe(`${API_BASE}/projects/${id}/${s}?page=1&per_page=5`, key, `/projects/${id}/${s}`);
 
@@ -80,16 +105,17 @@ async function main() {
     console.log('\n── /environments/{envId}/... ──');
     for (const s of subs) await probe(`${API_BASE}/environments/${env}/${s}?page=1&per_page=5`, key, `/environments/${env}/${s}`);
 
-    // ── Date-param variants for transactions ─────────────────────
-    console.log('\n── Transactions with date params ──');
-    const dateVariants = [
-      'from=2026-05-08T00%3A00%3A00Z&to=2026-05-09T00%3A00%3A00Z&page=1&per_page=10',
-      'from=2026-05-08T00:00:00Z&to=2026-05-09T00:00:00Z&page=1&per_page=10',
-      'from=2026-01-01T00:00:00Z&to=2027-01-01T00:00:00Z&page=1&per_page=10',
-    ];
-    for (const dv of dateVariants) {
-      await probe(`${API_BASE}/projects/${id}/transactions?${dv}`, key, `/projects/${id}/transactions?${dv.slice(0,40)}…`);
-      await probe(`${API_BASE}/environments/${env}/transactions?${dv}`, key, `/environments/${env}/transactions?${dv.slice(0,40)}…`);
+    // ── Date-param variants for biometric/scan endpoints ─────────
+    console.log('\n── Biometric endpoints with date params ──');
+    const qs = 'from=2020-01-01T00:00:00Z&to=2030-01-01T00:00:00Z&page=1&per_page=10';
+    const qs2 = 'page=1&per_page=10';
+    const bioEps = ['lookups','server-lookups','verifications','biometrics','presence',
+                    'scans','events','transactions','authentications','matches'];
+    for (const ep of bioEps) {
+      await probe(`${API_BASE}/projects/${id}/${ep}?${qs}`, key, `/projects/${id}/${ep}?from=2020…`);
+      await probe(`${API_BASE}/projects/${id}/${ep}?${qs2}`, key, `/projects/${id}/${ep}?page=1`);
+      await probe(`${API_BASE}/environments/${env}/${ep}?${qs}`, key, `/environments/${env}/${ep}?from=2020…`);
+      await probe(`${API_BASE}/environments/${env}/${ep}?${qs2}`, key, `/environments/${env}/${ep}?page=1`);
     }
   }
   console.log('\nDone.\n');
